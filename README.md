@@ -45,7 +45,7 @@ The Mongo Collection is just like it sounds, the collection in MongoDB where you
 The Mongo Database is where the collection lives. In MongoDB, a database can have many collections. So you can put your onehitter collection in your application database. 
 
 #### OTP_MESSAGE_FROM
-This Message From is the email address that the onetime password email to the user is sent from. This has to be an email address from a domain that Amazon SES has validated.
+Message From is the email address that the onetime password email to the user is sent from. This has to be an email address from a domain that Amazon SES has validated.
 
 #### OTP_MESSAGE_SUBJECT
 This is the subject of the email to the user notifying them of their new onetime password.
