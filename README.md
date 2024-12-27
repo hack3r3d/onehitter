@@ -27,7 +27,7 @@ To make your passwords expire automatically, you have to configure a TTL on your
 
 Whatever you decide to set the expiry to, you should update your .env OTP_EXPIRY to be the same value. This controls the email message indicating how long the user has to use the password. Setting that .env config setting has no impact on the actual TTL, that's controlled in MongoDB via that aforementioned index.
 
-And I eluded to in the previous paragraph, you will need to create a .env file, or use some mechanism like AWS Secrets to provide onehitter with the configuration it needs to operate.
+As I eluded to in the previous paragraph, you will need to create a .env file, or use some mechanism like AWS Secrets to provide onehitter with the configuration it needs to operate. You need the below values to be available via process.env
 
 ### Configuration Settings
 #### MONGO_CONNECTION
