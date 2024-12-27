@@ -1,2 +1,4 @@
 .env
+.env.test
+/tests/test.js
 /node_modules

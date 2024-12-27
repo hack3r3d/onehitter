@@ -1,10 +1,6 @@
 const _ = require("lodash")
-const { subMinutes, endOfHour, addMinutes } = require("date-fns")
-const { ObjectId } = require("mongodb")
-const client = require('./mongodb.js')
 
-const otpSave = async (otp) => {
-  await client.connect()
+const otpCreate = async (client, otp) => {
   const database = client.db(process.env.MONGO_DATABASE)
   const cursor = database.collection(process.env.MONGO_COLLECTION)
   if (!otp.createdAt) {
@@ -15,6 +11,18 @@ const otpSave = async (otp) => {
   }
 }
 
+const otpValidate = async (client, otp) => {
+  const database = client.db(process.env.MONGO_DATABASE)
+  const cursor = database.collection(process.env.MONGO_COLLECTION)
+  const foundOtp = await cursor.findOne(otp)
+  if (foundOtp) {
+    await cursor.deleteOne(otp)
+    return true
+  }
+  return false
+}
+
 module.exports = {
-  otpSave
+  otpCreate,
+  otpValidate
 }
