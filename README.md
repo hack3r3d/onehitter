@@ -11,7 +11,7 @@ Here's how it works, and I'm sure people have experienced something similar.
 6. If valid, great
 7. If not, access denied
 
-This isn't secure because it relies on email. Anyone with access to the email address, included admins, can view the one-time password and login with it. Email isn't very secure, while most email communications these days are encrypted, you can't count on that. 
+This isn't secure because it relies on email. Anyone with access to the email address, including admins, can view the one-time password and login with it. Email isn't secure, while most email communications these days are encrypted, you can't count on it. 
 
 So don't use this for any application that's doing anything with critical user data.
 
@@ -23,6 +23,6 @@ So to use this package, you will need to configure both MongoDB and Amazon SES.
 
 I'm not going to go deep in how to configure MongoDB and Amazon SES. There are plenty of tutorials to help with that stuff. The Amazon SES documentation can be found [here](https://docs.aws.amazon.com/ses/latest/dg/send-email.html). 
 
-To make your passwords expire automatically, you have to configure a TTL on your MongoDB collection. It's basically creating an index on a field that TTL will be tied to. For onehitter, you need to create an index on createdAt. MongoDB has a tutorial for how to configure an index with a TTL [here](https://www.mongodb.com/docs/manual/tutorial/expire-data/). The only difference between what you need to do here and what's in the tutorial, is use createdAt as the field to set the TTL on and set the { expireAfterSeconds: 1 } to however many seconds you want your onetime passwords to live for. I use 1800, or 30 minutes. 
+To make your passwords expire automatically, you have to configure a TTL on your MongoDB collection. It's basically creating an index on a field that TTL will be tied to. For onehitter, you need to create an index on createdAt. MongoDB has a tutorial for how to configure an index with a TTL [here](https://www.mongodb.com/docs/manual/tutorial/expire-data/). The only difference between what you need to do here and what's in the tutorial, is use createdAt as the field to set the TTL on and set the `{ expireAfterSeconds: 1 }` to however many seconds you want your onetime passwords to live for. I use 1800, or 30 minutes. 
 
 Whatever you decide to set the expiry to, you should update your .env OTP_EXPIRY to be the same value. This controls the email message indicating how long the user has to use the password. Setting that .env config setting has no impact on the actual TTL, that's controlled in MongoDB via that aforementioned index.
