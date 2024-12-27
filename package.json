@@ -1,0 +1,17 @@
+{
+  "name": "onehitter",
+  "version": "1.0.0",
+  "description": "One-time password user validation package.",
+  "main": "onehitter.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "dotenv-safe": "^9.1.0",
+    "lodash": "^4.17.21",
+    "mongodb": "^6.12.0"
+  }
+}
