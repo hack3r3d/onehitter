@@ -26,3 +26,50 @@ I'm not going to go deep in how to configure MongoDB and Amazon SES. There are p
 To make your passwords expire automatically, you have to configure a TTL on your MongoDB collection. It's basically creating an index on a field that TTL will be tied to. For onehitter, you need to create an index on createdAt. MongoDB has a tutorial for how to configure an index with a TTL [here](https://www.mongodb.com/docs/manual/tutorial/expire-data/). The only difference between what you need to do here and what's in the tutorial, is use createdAt as the field to set the TTL on and set the `{ expireAfterSeconds: 1 }` to however many seconds you want your onetime passwords to live for. I use 1800, or 30 minutes. 
 
 Whatever you decide to set the expiry to, you should update your .env OTP_EXPIRY to be the same value. This controls the email message indicating how long the user has to use the password. Setting that .env config setting has no impact on the actual TTL, that's controlled in MongoDB via that aforementioned index.
+
+And I eluded to in the previous paragraph, you will need to create a .env file, or use some mechanism like AWS Secrets to provide onehitter with the configuration it needs to operate.
+
+### Configuration Settings
+#### MONGO_CONNECTION
+This is the connection string used to connect to mongo. 
+
+It will look something like this.
+```
+mongodb+srv://myspecialusername:myspecialpassword@cluster0.xefwer0q.mongodb.net/?retryWrites=true&w=majority
+```
+
+#### MONGO_COLLECTION
+The Mongo Collection is just like it sounds, the collection in MongoDB where you plan on storing your onehitter data.
+
+#### MONGO_DATABASE
+The Mongo Database is where the collection lives. In MongoDB, a database can have many collections. So you can put your onehitter collection in your application database. 
+
+#### OTP_MESSAGE_FROM
+This Message From is the email address that the onetime password email to the user is sent from. This has to be an email address from a domain that Amazon SES has validated.
+
+#### OTP_MESSAGE_SUBJECT
+This is the subject of the email to the user notifying them of their new onetime password.
+
+#### OTP_URL
+This is the url included in the onetime password email notification.
+```
+https://example.com
+```
+
+#### OTP_EXPIRY
+This is how many seconds an onetime password is supposed to live. This is only for the email notification. To actually change the expiry, you have to recreate the index in MongoDB with the new expiry value.
+
+#### OTP_LENGTH
+This is the length of the onetime password - the number of characters.
+
+#### OTP_LETTERS_UPPER
+If true, use upper case letters in onetime password.
+
+#### OTP_LETTERS_LOWER
+If true, use lower case letters in onetime password.
+
+#### OTP_DIGITS
+If true, use digits in onetime password.
+
+#### OTP_SPECIAL_CHARS
+If true, use special characters in onetime password.
