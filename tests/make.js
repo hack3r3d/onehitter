@@ -18,8 +18,8 @@ function setBaselineEnv(overrides = {}) {
 function clearModules() {
   const keys = Object.keys(require.cache)
   for (const k of keys) {
-    if (k.endsWith(path.normalize('/dist/config.js')) ||
-        k.endsWith(path.normalize('/dist/onehitter.js'))) {
+if (k.endsWith(path.normalize('/dist/cjs/config.js')) ||
+        k.endsWith(path.normalize('/dist/cjs/onehitter.js'))) {
       delete require.cache[k]
     }
   }
@@ -27,7 +27,7 @@ function clearModules() {
 
 function loadOneHitter() {
   clearModules()
-  return require('../dist/onehitter.js').default
+return require('../dist/cjs/onehitter.js').default
 }
 
 describe('OneHitter.make()', () => {

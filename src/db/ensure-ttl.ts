@@ -1,4 +1,8 @@
-import 'dotenv-safe/config'
+// Load dotenv-safe only in dev/test (or when explicitly enabled)
+if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test' || process.env.ONEHITTER_USE_DOTENV === 'true') {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  require('dotenv-safe').config({ allowEmptyValues: false })
+}
 import { MongoClient, ServerApiVersion } from 'mongodb'
 import { MONGO_CONNECTION } from '../config'
 

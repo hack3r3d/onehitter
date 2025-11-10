@@ -12,7 +12,7 @@ if (!process.env.MONGO_CONNECTION) {
     console.error('Missing MONGO_CONNECTION. Create .env.test (preferred) or .env with required variables.')
     process.exit(1)
 }
-const OneHitter = require('../dist/onehitter.js').default
+const OneHitter = require('../dist/cjs/onehitter.js').default
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 const client = new MongoClient(process.env.MONGO_CONNECTION, {
     serverApi: {
@@ -21,7 +21,7 @@ const client = new MongoClient(process.env.MONGO_CONNECTION, {
         deprecationErrors: true,
     },
 })
-const send = require('../dist/sender.js').default
+const send = require('../dist/cjs/sender.js').default
 beforeEach(async () => {
     try {
         if (!process.env.MONGO_DATABASE || process.env.MONGO_DATABASE.search(/test/) < 0) {

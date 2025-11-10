@@ -1,4 +1,13 @@
-import 'dotenv-safe/config'
+// Load dotenv-safe only in dev/test (or when explicitly enabled)
+const __shouldLoadEnv = (
+  process.env.NODE_ENV === 'development' ||
+  process.env.NODE_ENV === 'test' ||
+  process.env.ONEHITTER_USE_DOTENV === 'true'
+)
+if (__shouldLoadEnv) {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  require('dotenv-safe').config({ allowEmptyValues: false })
+}
 
 function must(key: string): string {
   const v = process.env[key]

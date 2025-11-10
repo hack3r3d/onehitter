@@ -11,8 +11,8 @@ if (!process.env.OTP_MESSAGE_FROM) {
   dotenv.config({ path: rootEnvPath })
 }
 
-// Force SQLite driver for this file
-process.env.DB_DRIVER = 'sqlite'
+// Force SQLite driver for this file within this suite only
+const __PREV_DB_DRIVER = process.env.DB_DRIVER
 process.env.SQLITE_PATH = process.env.SQLITE_PATH || ':memory:'
 // Provide required non-Mongo envs if missing
 process.env.OTP_MESSAGE_FROM = process.env.OTP_MESSAGE_FROM || 'noreply@example.com'
@@ -23,6 +23,9 @@ process.env.OTP_EXPIRY = process.env.OTP_EXPIRY || '1800'
 const OneHitter = require('../dist/onehitter.js').default
 
 describe('OneHitter (SQLite driver)', () => {
+  before(() => { process.env.DB_DRIVER = 'sqlite' })
+  after(() => { process.env.DB_DRIVER = __PREV_DB_DRIVER })
+
   it('create and validate success path (no client required)', async () => {
     const one = new OneHitter()
     const otp = one.make()

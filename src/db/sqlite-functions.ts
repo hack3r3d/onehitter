@@ -49,39 +49,31 @@ export const otpValidateWithStatus = async (
   const otpHash = computeOtpHash(otp.contact, otp.otp)
 
   return await new Promise<ValidateStatus>((resolve, reject) => {
-    database.serialize(() => {
-      database.run('BEGIN IMMEDIATE')
-      database.get(
-        'SELECT id, createdAt FROM otp WHERE contact = ? AND otpHash = ? ORDER BY id DESC LIMIT 1',
-        [otp.contact, otpHash],
-        function (err, row: any) {
-          if (err) {
-            database.run('ROLLBACK')
-            return reject(err)
-          }
-          if (!row) {
-            database.run('COMMIT')
-            return resolve('not_found')
-          }
-          const id = row.id as number
-          const createdAtMs = Number(row.createdAt)
-          database.run('DELETE FROM otp WHERE id = ?', [id], function (delErr) {
-            if (delErr) {
-              database.run('ROLLBACK')
-              return reject(delErr)
-            }
-            database.run('COMMIT')
+    // Single-statement atomicity: select the newest id, then conditionally delete it.
+    // We avoid explicit BEGIN/COMMIT to prevent nested transaction errors under concurrency.
+    database.get(
+      'SELECT id, createdAt FROM otp WHERE contact = ? AND otpHash = ? ORDER BY id DESC LIMIT 1',
+      [otp.contact, otpHash],
+      function (err, row: any) {
+        if (err) return reject(err)
+        if (!row) return resolve('not_found')
 
-            const ttlEnv = Number(process.env.OTP_EXPIRY)
-            const ttl = Number.isFinite(ttlEnv) ? ttlEnv : (typeof ttlSeconds === 'number' ? ttlSeconds : undefined)
-            if (typeof ttl === 'number' && ttl > 0) {
-              const ageMs = now.getTime() - createdAtMs
-              if (ageMs > ttl * 1000) return resolve('expired')
-            }
-            return resolve('ok')
-          })
-        },
-      )
-    })
+        const id = row.id as number
+        const createdAtMs = Number(row.createdAt)
+        database.run('DELETE FROM otp WHERE id = ?', [id], function (delErr) {
+          if (delErr) return reject(delErr)
+          // If another concurrent validator deleted it first, changes will be 0
+          if (this.changes !== 1) return resolve('not_found')
+
+          const ttlEnv = Number(process.env.OTP_EXPIRY)
+          const ttl = Number.isFinite(ttlEnv) ? ttlEnv : (typeof ttlSeconds === 'number' ? ttlSeconds : undefined)
+          if (typeof ttl === 'number' && ttl > 0) {
+            const ageMs = now.getTime() - createdAtMs
+            if (ageMs > ttl * 1000) return resolve('expired')
+          }
+          return resolve('ok')
+        })
+      },
+    )
   })
 }

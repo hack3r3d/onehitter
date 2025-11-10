@@ -14,7 +14,7 @@ if (!process.env.MONGO_CONNECTION) {
   process.exit(1)
 }
 
-const OneHitter = require('../dist/onehitter.js').default
+const OneHitter = require('../dist/cjs/onehitter.js').default
 const { MongoClient, ServerApiVersion } = require('mongodb')
 const client = new MongoClient(process.env.MONGO_CONNECTION, {
   serverApi: {

@@ -14,8 +14,8 @@ if (!process.env.MONGO_CONNECTION) {
   process.exit(1)
 }
 
-const OneHitter = require('../dist/onehitter.js').default
-const { InMemoryRateLimiter } = require('../dist/rate-limiter.js')
+const OneHitter = require('../dist/cjs/onehitter.js').default
+const { InMemoryRateLimiter } = require('../dist/cjs/rate-limiter.js')
 const { MongoClient, ServerApiVersion } = require('mongodb')
 const client = new MongoClient(process.env.MONGO_CONNECTION, {
   serverApi: {

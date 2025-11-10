@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { InMemoryRateLimiter, NoopRateLimiter } = require('../dist/rate-limiter.js')
+const { InMemoryRateLimiter, NoopRateLimiter } = require('../dist/cjs/rate-limiter.js')
 
 describe('InMemoryRateLimiter defaults', () => {
   it('blocks after default max (5) failures without options', async () => {

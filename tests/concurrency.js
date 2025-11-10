@@ -14,6 +14,8 @@ if (!process.env.MONGO_CONNECTION) {
   process.exit(1)
 }
 
+// Ensure Mongo driver for this suite
+process.env.DB_DRIVER = 'mongodb'
 const OneHitter = require('../dist/onehitter.js').default
 const { MongoClient, ServerApiVersion } = require('mongodb')
 const client = new MongoClient(process.env.MONGO_CONNECTION, {

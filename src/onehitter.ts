@@ -45,10 +45,10 @@ class OneHitter {
   async create(otp: OtpDoc): Promise<InsertOneResult<unknown>>
   async create(client: MongoClient, otp: OtpDoc): Promise<InsertOneResult<unknown>>
   async create(arg1: MongoClient | OtpDoc, arg2?: OtpDoc): Promise<InsertOneResult<unknown>> {
-    const adapter = getAdapter()
     const isOtpFirst = (arg1 as any)?.contact && !(arg1 as any)?.db
     const otp = (isOtpFirst ? (arg1 as OtpDoc) : (arg2 as OtpDoc))
     const client = isOtpFirst ? undefined : (arg1 as MongoClient)
+    const adapter = getAdapter({ hasClient: !!client })
     return await adapter.create({ client, otp })
   }
 
@@ -77,7 +77,7 @@ class OneHitter {
     const allowed = await this.limiter.beforeValidate(otp.contact)
     if (!allowed) return 'blocked'
 
-    const adapter = getAdapter()
+    const adapter = getAdapter({ hasClient })
     const status = await adapter.validateWithStatus({ client: hasClient ? (arg1 as any) : undefined, otp })
     if (status === 'ok') await this.limiter.onSuccess(otp.contact)
     else await this.limiter.onFailure(otp.contact)

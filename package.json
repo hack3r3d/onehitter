@@ -2,32 +2,39 @@
   "name": "onehitter",
   "version": "2.0.0",
   "description": "One-time password user validation package.",
-  "main": "dist/onehitter.js",
-  "types": "dist/onehitter.d.ts",
+  "main": "dist/cjs/onehitter.js",
+  "module": "dist/esm/onehitter.js",
+  "types": "dist/types/onehitter.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/onehitter.js",
-      "types": "./dist/onehitter.d.ts",
-      "default": "./dist/onehitter.js"
+      "import": "./dist/esm/onehitter.js",
+      "require": "./dist/cjs/onehitter.js",
+      "types": "./dist/types/onehitter.d.ts",
+      "default": "./dist/cjs/onehitter.js"
     },
     "./rate-limiter": {
-      "require": "./dist/rate-limiter.js",
-      "types": "./dist/rate-limiter.d.ts",
-      "default": "./dist/rate-limiter.js"
+      "import": "./dist/esm/rate-limiter.js",
+      "require": "./dist/cjs/rate-limiter.js",
+      "types": "./dist/types/rate-limiter.d.ts",
+      "default": "./dist/cjs/rate-limiter.js"
     },
     "./sender": {
-      "require": "./dist/sender.js",
-      "types": "./dist/sender.d.ts",
-      "default": "./dist/sender.js"
+      "import": "./dist/esm/sender.js",
+      "require": "./dist/cjs/sender.js",
+      "types": "./dist/types/sender.d.ts",
+      "default": "./dist/cjs/sender.js"
     },
     "./db/ensure-ttl": {
-      "require": "./dist/db/ensure-ttl.js",
-      "types": "./dist/db/ensure-ttl.d.ts",
-      "default": "./dist/db/ensure-ttl.js"
+      "import": "./dist/esm/db/ensure-ttl.js",
+      "require": "./dist/cjs/db/ensure-ttl.js",
+      "types": "./dist/types/db/ensure-ttl.d.ts",
+      "default": "./dist/cjs/db/ensure-ttl.js"
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build:esm": "tsc -p tsconfig.build.esm.json",
+    "build:cjs": "tsc -p tsconfig.build.cjs.json",
+    "build": "npm run build:esm && npm run build:cjs",
     "pretest": "npm run build",
     "test": "mocha tests --grep \"#send\" --invert",
     "test:all": "npm run build && mocha tests",
@@ -35,7 +42,7 @@
     "test:send": "npm run build && mocha tests/onehitter.js -g \"#send\"",
     "test:concurrency": "npm run build && mocha tests/concurrency.js",
     "test:coverage": "npm run build && nyc --reporter=lcov --reporter=text mocha tests",
-    "db:ensure-ttl": "npm run build && node dist/db/ensure-ttl.js"
+    "db:ensure-ttl": "npm run build && node dist/cjs/db/ensure-ttl.js"
   },
   "repository": {
     "type": "git",
@@ -61,7 +68,9 @@
     "node": ">=18"
   },
   "files": [
-    "dist",
+    "dist/esm",
+    "dist/cjs",
+    "dist/types",
     "README.md",
     "LICENSE"
   ],

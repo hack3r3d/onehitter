@@ -9,7 +9,9 @@ export interface OtpDoc {
   // _id is Mongo-specific; omitted here on purpose
 }
 
-export const DB_DRIVER: 'mongodb' | 'sqlite' = (process.env.DB_DRIVER as any) === 'sqlite' ? 'sqlite' : 'mongodb'
+export function currentDriver(): 'mongodb' | 'sqlite' {
+  return (process.env.DB_DRIVER as any) === 'sqlite' ? 'sqlite' : 'mongodb'
+}
 export const SQLITE_PATH: string = process.env.SQLITE_PATH ?? ':memory:'
 
 export interface DbAdapter {
