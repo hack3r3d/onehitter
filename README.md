@@ -107,10 +107,10 @@ if (status === 'ok') {
 Details and tradeoffs: docs/DB.md
 
 ## More docs and examples
-- Architecture and design: docs/ARCHITECTURE.md
-- Database setup and TTL index: docs/DB.md
-- Email setup and templates (SES): docs/EMAIL.md
-- Rate limiting: docs/RATE_LIMITING.md
-- Security and hashing: docs/SECURITY.md
-- Testing strategy and commands: docs/TESTING.md
-- Usage examples: examples/*
+- Architecture and design: [ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- Database setup and TTL index: [DB.md](docs/DB.md)
+- Email setup and templates (SES): [EMAIL.md](docs/EMAIL.md)
+- Rate limiting: [RATE_LIMITING.md](docs/RATE_LIMITING.md)
+- Security and hashing: [SECURITY.md](docs/SECURITY.md)
+- Testing strategy and commands: [TESTING.md](docs/TESTING.md)
+- Usage examples: [examples](examples)
