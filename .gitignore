@@ -2,3 +2,5 @@
 .env.test
 /tests/test.js
 /node_modules
+/coverage
+/.nyc_output

@@ -1,20 +1,83 @@
 {
   "name": "onehitter",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "One-time password user validation package.",
-  "main": "onehitter.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "main": "dist/onehitter.js",
+  "types": "dist/onehitter.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/onehitter.js",
+      "types": "./dist/onehitter.d.ts",
+      "default": "./dist/onehitter.js"
+    },
+    "./rate-limiter": {
+      "require": "./dist/rate-limiter.js",
+      "types": "./dist/rate-limiter.d.ts",
+      "default": "./dist/rate-limiter.js"
+    },
+    "./sender": {
+      "require": "./dist/sender.js",
+      "types": "./dist/sender.d.ts",
+      "default": "./dist/sender.js"
+    },
+    "./db/ensure-ttl": {
+      "require": "./dist/db/ensure-ttl.js",
+      "types": "./dist/db/ensure-ttl.d.ts",
+      "default": "./dist/db/ensure-ttl.js"
+    }
   },
-  "author": "",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "pretest": "npm run build",
+    "test": "mocha tests --grep \"#send\" --invert",
+    "test:all": "npm run build && mocha tests",
+    "test:file": "npm run build && mocha tests/onehitter.js",
+    "test:send": "npm run build && mocha tests/onehitter.js -g \"#send\"",
+    "test:concurrency": "npm run build && mocha tests/concurrency.js",
+    "test:coverage": "npm run build && nyc --reporter=lcov --reporter=text mocha tests",
+    "db:ensure-ttl": "npm run build && node dist/db/ensure-ttl.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hack3r3d/onehitter.git"
+  },
+  "homepage": "https://github.com/hack3rd/onehitter#readme",
+  "bugs": {
+    "url": "https://github.com/hack3r3d/onehitter/issues"
+  },
+  "keywords": [
+    "otp",
+    "one-time-password",
+    "mongodb",
+    "ses",
+    "nodemailer",
+    "verification",
+    "auth",
+    "node"
+  ],
+  "author": "Keith Vance <discgolfer@uniflydiscs.com>",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "@aws-sdk/client-ses": "^3.716.0",
-    "date-fns": "^4.1.0",
     "dotenv-safe": "^9.1.0",
-    "lodash": "^4.17.21",
     "mongodb": "^6.12.0",
     "nodemailer": "^6.9.16",
-    "otp-generator": "^4.0.1"
+    "otp-generator": "^4.0.1",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.8.7",
+    "@types/nodemailer": "^6.4.15",
+    "mocha": "^11.7.5",
+    "nyc": "^17.1.0",
+    "typescript": "^5.6.3"
   }
 }
