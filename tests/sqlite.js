@@ -22,7 +22,12 @@ process.env.OTP_EXPIRY = process.env.OTP_EXPIRY || '1800'
 
 const OneHitter = require('../dist/onehitter.js').default
 
-describe('OneHitter (SQLite driver)', () => {
+const hasSqlite = (() => {
+  try { require.resolve('sqlite3'); return true } catch { return false }
+})()
+const d = hasSqlite ? describe : describe.skip
+
+d('OneHitter (SQLite driver)', () => {
   before(() => { process.env.DB_DRIVER = 'sqlite' })
   after(() => { process.env.DB_DRIVER = __PREV_DB_DRIVER })
 

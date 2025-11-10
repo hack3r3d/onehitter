@@ -19,7 +19,7 @@ const onehitter = new OneHitter()
 ## Supplying your own limiter explicitly
 ```ts
 import OneHitter from 'onehitter'
-import { InMemoryRateLimiter } from 'onehitter/dist/rate-limiter'
+import { InMemoryRateLimiter } from 'onehitter/rate-limiter'
 
 const limiter = new InMemoryRateLimiter({ max: 3, windowMs: 60_000, cooldownMs: 30_000 })
 const onehitter = new OneHitter({ rateLimiter: limiter })

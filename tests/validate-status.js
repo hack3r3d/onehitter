@@ -9,20 +9,11 @@ dotenv.config({ path: testEnvPath })
 if (!process.env.MONGO_CONNECTION) {
   dotenv.config({ path: rootEnvPath })
 }
-if (!process.env.MONGO_CONNECTION) {
-  console.error('Missing MONGO_CONNECTION. Create .env.test (preferred) or .env with required variables.')
-  process.exit(1)
-}
 
 const OneHitter = require('../dist/cjs/onehitter.js').default
 const { MongoClient, ServerApiVersion } = require('mongodb')
-const client = new MongoClient(process.env.MONGO_CONNECTION, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-})
+const { skipIfNoMongoConnection, skipIfNotTestDatabase } = require('./helpers/gating')
+let client
 
 // A permissive limiter to avoid environment-driven blocking
 const AllowAllLimiter = {
@@ -32,16 +23,21 @@ const AllowAllLimiter = {
 }
 
 describe('validateStatus', () => {
-  before(async () => {
-    if (!process.env.MONGO_DATABASE || process.env.MONGO_DATABASE.search(/test/) < 0) {
-      console.error('You can not run these tests on a database that does not include "test" in the name.')
-      process.exit(1)
-    }
+  before(async function () {
+    skipIfNoMongoConnection(this)
+    skipIfNotTestDatabase(this)
+    client = new MongoClient(process.env.MONGO_CONNECTION, {
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+      },
+    })
     await client.connect()
   })
 
   after(async () => {
-    await client.close()
+    if (client) await client.close()
   })
 
   it('returns ok for fresh OTP and expired for old OTP; not_found for wrong/used', async function () {

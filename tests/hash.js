@@ -9,22 +9,13 @@ dotenv.config({ path: testEnvPath })
 if (!process.env.MONGO_CONNECTION) {
   dotenv.config({ path: rootEnvPath })
 }
-if (!process.env.MONGO_CONNECTION) {
-  console.error('Missing MONGO_CONNECTION. Create .env.test (preferred) or .env with required variables.')
-  process.exit(1)
-}
 
 // Ensure Mongo driver for this suite
 process.env.DB_DRIVER = 'mongodb'
 const OneHitter = require('../dist/onehitter.js').default
 const { MongoClient, ServerApiVersion } = require('mongodb')
-const client = new MongoClient(process.env.MONGO_CONNECTION, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-})
+const { skipIfNoMongoConnection, skipIfNotTestDatabase } = require('./helpers/gating')
+let client
 
 // Ensure a pepper exists for this test context to avoid storing plain SHA-256
 if (!process.env.OTP_PEPPER) {
@@ -32,16 +23,21 @@ if (!process.env.OTP_PEPPER) {
 }
 
 describe('OneHitter hashing', () => {
-  before(async () => {
-    if (!process.env.MONGO_DATABASE || process.env.MONGO_DATABASE.search(/test/) < 0) {
-      console.error('You can not run these tests on a database that does not include "test" in the name.')
-      process.exit(1)
-    }
+  before(async function () {
+    skipIfNoMongoConnection(this)
+    skipIfNotTestDatabase(this)
+    client = new MongoClient(process.env.MONGO_CONNECTION, {
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+      },
+    })
     await client.connect()
   })
 
   after(async () => {
-    await client.close()
+    if (client) await client.close()
   })
 
   it('does not store plaintext otp and stores a hash instead', async function () {

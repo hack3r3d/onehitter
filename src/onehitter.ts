@@ -20,11 +20,14 @@ import {
 
 type EmailOption = { message?: MessageConfig | MessageTemplate }
 
-type OneHitterOpts = OneHitterOptions & EmailOption
+type EmailRuntimeOptions = { region?: string }
+
+type OneHitterOpts = OneHitterOptions & EmailOption & { email?: EmailRuntimeOptions }
 
 class OneHitter {
   private limiter: RateLimiter
   private message?: MessageConfig | MessageTemplate
+  private email?: EmailRuntimeOptions
 
   constructor(options?: OneHitterOpts) {
     if (options?.rateLimiter) {
@@ -39,6 +42,7 @@ class OneHitter {
       this.limiter = new NoopRateLimiter()
     }
     this.message = options?.message
+    this.email = options?.email
   }
 
   // Overloads to support both drivers ergonomically
@@ -53,7 +57,10 @@ class OneHitter {
   }
 
   async send(to: string, otp: string): Promise<void> {
-    await sendEmail(to, otp, OTP_URL, OTP_EXPIRY, this.message)
+    if (!OTP_URL || String(OTP_URL).trim().length === 0) {
+      throw new Error('Missing OTP_URL: set environment variable OTP_URL or provide it via config')
+    }
+    await sendEmail(to, otp, OTP_URL, OTP_EXPIRY, this.message, this.email)
   }
 
   /**

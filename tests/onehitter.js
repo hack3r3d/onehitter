@@ -7,34 +7,29 @@ const rootEnvPath = path.resolve(__dirname, '..', '.env')
 dotenv.config({ path: testEnvPath })
 if (!process.env.MONGO_CONNECTION) {
     dotenv.config({ path: rootEnvPath })
-}
-if (!process.env.MONGO_CONNECTION) {
-    console.error('Missing MONGO_CONNECTION. Create .env.test (preferred) or .env with required variables.')
-    process.exit(1)
+    if (!process.env.MONGO_CONNECTION) {
+        console.warn('Skipping integration tests: MONGO_CONNECTION not set')
+    }
 }
 const OneHitter = require('../dist/cjs/onehitter.js').default
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
-const client = new MongoClient(process.env.MONGO_CONNECTION, {
-    serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-    },
-})
 const send = require('../dist/cjs/sender.js').default
-beforeEach(async () => {
-    try {
-        if (!process.env.MONGO_DATABASE || process.env.MONGO_DATABASE.search(/test/) < 0) {
-            console.error('You can not run these tests on a database that does not include "test" in the name.')
-            process.exit(1)
-        }
-        await client.connect()
-    } catch (ex) {
-        new Error(ex)
-    }
+const { skipIfNoMongoConnection, skipIfNotTestDatabase } = require('./helpers/gating')
+let client
+beforeEach(async function () {
+    skipIfNoMongoConnection(this)
+    skipIfNotTestDatabase(this)
+    client = new MongoClient(process.env.MONGO_CONNECTION, {
+        serverApi: {
+            version: ServerApiVersion.v1,
+            strict: true,
+            deprecationErrors: true,
+        },
+    })
+    await client.connect()
 })
 afterEach(async () => {
-    await client.close()
+    if (client) await client.close()
 })
 describe('OneHitter', () => {
     describe('#validate', () => {

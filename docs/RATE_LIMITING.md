@@ -24,7 +24,7 @@ export interface RateLimiter {
 ```ts
 import Redis from 'ioredis'
 import OneHitter from 'onehitter'
-import { RateLimiter } from 'onehitter/dist/rate-limiter'
+import { RateLimiter } from 'onehitter/rate-limiter'
 
 class RedisLimiter implements RateLimiter {
   constructor(private redis = new Redis()) {}
@@ -61,7 +61,7 @@ const onehitter = new OneHitter({ rateLimiter: limiter })
 ```ts
 import { Collection } from 'mongodb'
 import OneHitter from 'onehitter'
-import { RateLimiter } from 'onehitter/dist/rate-limiter'
+import { RateLimiter } from 'onehitter/rate-limiter'
 
 class MongoCooldown implements RateLimiter {
   constructor(private coll: Collection) {}

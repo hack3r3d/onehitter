@@ -2,6 +2,11 @@ import nodemailer from 'nodemailer'
 import * as aws from '@aws-sdk/client-ses'
 import { OTP_MESSAGE_FROM, OTP_MESSAGE_SUBJECT, SES_REGION, OTP_EXPIRY } from './config'
 
+export interface SendOptions {
+  region?: string
+  transporter?: nodemailer.Transporter
+}
+
 export interface MessageContext {
   to: string
   otp: string
@@ -22,12 +27,13 @@ export interface MessageConfig {
 
 function formatExpiry(expiry?: number | string): { seconds: number; minutes: number; text: string } {
   const secFromArg = Number(expiry)
-  const seconds = Number.isFinite(secFromArg) && secFromArg > 0
+  const envExpiryNum = Number(OTP_EXPIRY)
+  const seconds: number = (Number.isFinite(secFromArg) && secFromArg > 0)
     ? secFromArg
-    : (Number.isFinite(OTP_EXPIRY) && OTP_EXPIRY > 0 ? OTP_EXPIRY : 1800) // default 30m
+    : ((Number.isFinite(envExpiryNum) && envExpiryNum > 0) ? envExpiryNum : 1800) // default 30m
 
-  const minutes = Math.max(1, Math.round(seconds / 60))
-  const text = minutes === 1 ? '1 minute' : `${minutes} minutes`
+  const minutes: number = Math.max(1, Math.round(seconds / 60))
+  const text: string = minutes === 1 ? '1 minute' : `${minutes} minutes`
   return { seconds, minutes, text }
 }
 
@@ -61,21 +67,29 @@ Once used, this one-time password can not be used again. That's why it's called 
   return { subject, text, html, from }
 }
 
-async function send(to: string, otp: string, url: string, expiry?: number | string, message?: MessageConfig | MessageTemplate): Promise<void> {
+async function send(
+  to: string,
+  otp: string,
+  url: string,
+  expiry?: number | string,
+  message?: MessageConfig | MessageTemplate,
+  opts?: SendOptions,
+): Promise<void> {
   if (!to || String(to).trim().length === 0) {
     throw new Error('Missing recipient email: ensure OTP_MESSAGE_TEST_TO (for tests) or the "to" argument is set')
   }
 
-  const ses = new aws.SES({
-    apiVersion: '2010-12-01',
-    region: SES_REGION,
-  })
+  const region = opts?.region ?? SES_REGION ?? 'us-east-1'
 
-  const transporter = nodemailer.createTransport({
-    SES: { ses, aws },
+  const transporter = opts?.transporter ?? nodemailer.createTransport({
+    SES: { ses: new aws.SES({ apiVersion: '2010-12-01', region }), aws },
   })
 
   const { subject, text, html, from } = resolveMessage(to, otp, url, expiry, message)
+
+  if (!from || String(from).trim().length === 0) {
+    throw new Error('Missing sender address: set OTP_MESSAGE_FROM or provide message.from')
+  }
 
   await transporter.sendMail({
     from,

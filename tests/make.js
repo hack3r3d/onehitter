@@ -1,50 +1,56 @@
 const assert = require('assert')
-const path = require('path')
-const dotenv = require('dotenv')
+const proxyquireBase = require('proxyquire')
+const pq = proxyquireBase.noCallThru().noPreserveCache()
 
-function setBaselineEnv(overrides = {}) {
-  process.env.MONGO_CONNECTION = overrides.MONGO_CONNECTION || 'mongodb://localhost:27017'
-  process.env.MONGO_DATABASE = overrides.MONGO_DATABASE || 'onehitter-test'
-  process.env.MONGO_COLLECTION = overrides.MONGO_COLLECTION || 'otp'
-  process.env.OTP_MESSAGE_FROM = overrides.OTP_MESSAGE_FROM || 'noreply@example.com'
-  process.env.OTP_MESSAGE_SUBJECT = overrides.OTP_MESSAGE_SUBJECT || 'One-time password'
-  process.env.OTP_URL = overrides.OTP_URL || 'https://example.com'
-  process.env.OTP_EXPIRY = overrides.OTP_EXPIRY || '1800'
-  process.env.SES_REGION = overrides.SES_REGION || 'us-east-1'
-  process.env.OTP_MESSAGE_TEST_TO = overrides.OTP_MESSAGE_TEST_TO || 'user@example.com'
-  // caller controls OTP_LENGTH and flags per-test
-}
-
-function clearModules() {
-  const keys = Object.keys(require.cache)
-  for (const k of keys) {
-if (k.endsWith(path.normalize('/dist/cjs/config.js')) ||
-        k.endsWith(path.normalize('/dist/cjs/onehitter.js'))) {
-      delete require.cache[k]
-    }
+function loadOneHitterWithConfig(cfg) {
+  const defaults = {
+    OTP_MESSAGE_FROM: 'noreply@example.com',
+    OTP_MESSAGE_SUBJECT: 'One-time password',
+    OTP_URL: 'https://example.com',
+    OTP_EXPIRY: 1800,
+    OTP_LENGTH: 6,
+    OTP_LETTERS_UPPER: false,
+    OTP_LETTERS_LOWER: false,
+    OTP_DIGITS: true,
+    OTP_SPECIAL_CHARS: false,
   }
+  const c = Object.assign({}, defaults, cfg)
+  const configStub = {
+    OTP_MESSAGE_FROM: c.OTP_MESSAGE_FROM,
+    OTP_MESSAGE_SUBJECT: c.OTP_MESSAGE_SUBJECT,
+    OTP_URL: c.OTP_URL,
+    OTP_EXPIRY: c.OTP_EXPIRY,
+    OTP_LENGTH: c.OTP_LENGTH,
+    OTP_LETTERS_UPPER: c.OTP_LETTERS_UPPER,
+    OTP_LETTERS_LOWER: c.OTP_LETTERS_LOWER,
+    OTP_DIGITS: c.OTP_DIGITS,
+    OTP_SPECIAL_CHARS: c.OTP_SPECIAL_CHARS,
+  }
+  // Purge caches so stubs always apply
+  for (const p of ['../dist/cjs/onehitter.js', '../dist/cjs/sender.js', '../dist/cjs/config.js']) {
+    try {
+      const abs = require.resolve(p)
+      if (require.cache[abs]) delete require.cache[abs]
+    } catch {}
+  }
+  // Stub both config and sender (noop) to avoid requiring real config via sender
+  return pq('../dist/cjs/onehitter.js', {
+    './config': configStub,
+    './sender': function noopSend() { /* no-op in unit tests */ },
+  }).default
 }
 
-function loadOneHitter() {
-  clearModules()
-return require('../dist/cjs/onehitter.js').default
-}
-
-describe('OneHitter.make()', () => {
-  before(() => {
-    // Do not auto-load .env files here; we set env explicitly per test
-    dotenv.config({ override: true })
-  })
+describe('OneHitter.make()', function () {
+  this.timeout(10000)
 
   it('parses OTP_LENGTH as a positive integer', () => {
-    setBaselineEnv({})
-    process.env.OTP_LENGTH = '8'
-    process.env.OTP_LETTERS_UPPER = 'false'
-    process.env.OTP_LETTERS_LOWER = 'false'
-    process.env.OTP_DIGITS = 'true'
-    process.env.OTP_SPECIAL_CHARS = 'false'
-
-    const OneHitter = loadOneHitter()
+    const OneHitter = loadOneHitterWithConfig({
+      OTP_LENGTH: 8,
+      OTP_LETTERS_UPPER: false,
+      OTP_LETTERS_LOWER: false,
+      OTP_DIGITS: true,
+      OTP_SPECIAL_CHARS: false,
+    })
     const one = new OneHitter()
     const code = one.make()
     assert.strictEqual(code.length, 8)
@@ -52,35 +58,39 @@ describe('OneHitter.make()', () => {
   })
 
   it('falls back to 6 when OTP_LENGTH is invalid or non-positive', () => {
-    setBaselineEnv({})
-    process.env.OTP_LENGTH = 'abc' // invalid -> default 6
-    process.env.OTP_LETTERS_UPPER = 'false'
-    process.env.OTP_LETTERS_LOWER = 'false'
-    process.env.OTP_DIGITS = 'true'
-    process.env.OTP_SPECIAL_CHARS = 'false'
-
-    let OneHitter = loadOneHitter()
+    // invalid length -> default 6
+    let OneHitter = loadOneHitterWithConfig({
+      OTP_LENGTH: NaN,
+      OTP_LETTERS_UPPER: false,
+      OTP_LETTERS_LOWER: false,
+      OTP_DIGITS: true,
+      OTP_SPECIAL_CHARS: false,
+    })
     let one = new OneHitter()
     let code = one.make()
     assert.strictEqual(code.length, 6)
 
-    // Non-positive -> default 6
-    process.env.OTP_LENGTH = '0'
-    OneHitter = loadOneHitter()
+    // non-positive -> default 6
+    OneHitter = loadOneHitterWithConfig({
+      OTP_LENGTH: 0,
+      OTP_LETTERS_UPPER: false,
+      OTP_LETTERS_LOWER: false,
+      OTP_DIGITS: true,
+      OTP_SPECIAL_CHARS: false,
+    })
     one = new OneHitter()
     code = one.make()
     assert.strictEqual(code.length, 6)
   })
 
   it('defaults to digits when all character-class flags are false', () => {
-    setBaselineEnv({})
-    process.env.OTP_LENGTH = '' // present but empty; internal defaulting yields 6
-    process.env.OTP_LETTERS_UPPER = 'false'
-    process.env.OTP_LETTERS_LOWER = 'false'
-    process.env.OTP_DIGITS = 'false'
-    process.env.OTP_SPECIAL_CHARS = 'false'
-
-    const OneHitter = loadOneHitter()
+    const OneHitter = loadOneHitterWithConfig({
+      OTP_LENGTH: 6,
+      OTP_LETTERS_UPPER: false,
+      OTP_LETTERS_LOWER: false,
+      OTP_DIGITS: false,
+      OTP_SPECIAL_CHARS: false,
+    })
     const one = new OneHitter()
     const code = one.make()
     assert.strictEqual(code.length, 6)
@@ -88,14 +98,13 @@ describe('OneHitter.make()', () => {
   })
 
   it('upper only produces A-Z', () => {
-    setBaselineEnv({})
-    process.env.OTP_LENGTH = '10'
-    process.env.OTP_LETTERS_UPPER = 'true'
-    process.env.OTP_LETTERS_LOWER = 'false'
-    process.env.OTP_DIGITS = 'false'
-    process.env.OTP_SPECIAL_CHARS = 'false'
-
-    const OneHitter = loadOneHitter()
+    const OneHitter = loadOneHitterWithConfig({
+      OTP_LENGTH: 10,
+      OTP_LETTERS_UPPER: true,
+      OTP_LETTERS_LOWER: false,
+      OTP_DIGITS: false,
+      OTP_SPECIAL_CHARS: false,
+    })
     const one = new OneHitter()
     const code = one.make()
     assert.strictEqual(code.length, 10)
@@ -103,14 +112,13 @@ describe('OneHitter.make()', () => {
   })
 
   it('lower only produces a-z', () => {
-    setBaselineEnv({})
-    process.env.OTP_LENGTH = '10'
-    process.env.OTP_LETTERS_UPPER = 'false'
-    process.env.OTP_LETTERS_LOWER = 'true'
-    process.env.OTP_DIGITS = 'false'
-    process.env.OTP_SPECIAL_CHARS = 'false'
-
-    const OneHitter = loadOneHitter()
+    const OneHitter = loadOneHitterWithConfig({
+      OTP_LENGTH: 10,
+      OTP_LETTERS_UPPER: false,
+      OTP_LETTERS_LOWER: true,
+      OTP_DIGITS: false,
+      OTP_SPECIAL_CHARS: false,
+    })
     const one = new OneHitter()
     const code = one.make()
     assert.strictEqual(code.length, 10)
@@ -118,14 +126,13 @@ describe('OneHitter.make()', () => {
   })
 
   it('digits only produces 0-9', () => {
-    setBaselineEnv({})
-    process.env.OTP_LENGTH = '12'
-    process.env.OTP_LETTERS_UPPER = 'false'
-    process.env.OTP_LETTERS_LOWER = 'false'
-    process.env.OTP_DIGITS = 'true'
-    process.env.OTP_SPECIAL_CHARS = 'false'
-
-    const OneHitter = loadOneHitter()
+    const OneHitter = loadOneHitterWithConfig({
+      OTP_LENGTH: 12,
+      OTP_LETTERS_UPPER: false,
+      OTP_LETTERS_LOWER: false,
+      OTP_DIGITS: true,
+      OTP_SPECIAL_CHARS: false,
+    })
     const one = new OneHitter()
     const code = one.make()
     assert.strictEqual(code.length, 12)
@@ -133,18 +140,16 @@ describe('OneHitter.make()', () => {
   })
 
   it('special only produces non-alphanumeric', () => {
-    setBaselineEnv({})
-    process.env.OTP_LENGTH = '12'
-    process.env.OTP_LETTERS_UPPER = 'false'
-    process.env.OTP_LETTERS_LOWER = 'false'
-    process.env.OTP_DIGITS = 'false'
-    process.env.OTP_SPECIAL_CHARS = 'true'
-
-    const OneHitter = loadOneHitter()
+    const OneHitter = loadOneHitterWithConfig({
+      OTP_LENGTH: 12,
+      OTP_LETTERS_UPPER: false,
+      OTP_LETTERS_LOWER: false,
+      OTP_DIGITS: false,
+      OTP_SPECIAL_CHARS: true,
+    })
     const one = new OneHitter()
     const code = one.make()
     assert.strictEqual(code.length, 12)
-    // Ensure no letters or digits present
     assert.match(code, /^[^A-Za-z0-9]+$/)
   })
 })

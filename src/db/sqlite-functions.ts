@@ -1,12 +1,14 @@
 import type { InsertOneResult } from 'mongodb'
-import sqlite3 from 'sqlite3'
 import { SQLITE_PATH, computeOtpHash, type OtpDoc, type ValidateStatus } from './shared'
 
-let db: sqlite3.Database | null = null
+let sqlite3: any | undefined
+let db: any | null = null
 
-function getDb(): sqlite3.Database {
+function getDb(): any {
   if (db) return db
-  db = new sqlite3.Database(SQLITE_PATH)
+  // Lazy-load sqlite3 only when the SQLite driver is actually used
+  const s: any = sqlite3 ?? (sqlite3 = require('sqlite3'))
+  db = new s.Database(SQLITE_PATH)
   db.serialize(() => {
     db!.run(
       'CREATE TABLE IF NOT EXISTS otp (\n' +
@@ -31,7 +33,7 @@ export const otpCreate = async (otp: OtpDoc): Promise<InsertOneResult<unknown>> 
     database.run(
       'INSERT INTO otp (contact, otpHash, createdAt) VALUES (?, ?, ?)',
       [otp.contact, otpHash, createdAt],
-      function (this: sqlite3.RunResult, err) {
+      function (this: any, err: any) {
         if (err) return reject(err)
         // Shape it like a Mongo InsertOneResult enough for callers
         resolve({ acknowledged: true, insertedId: this.lastID } as unknown as InsertOneResult<unknown>)
@@ -54,13 +56,13 @@ export const otpValidateWithStatus = async (
     database.get(
       'SELECT id, createdAt FROM otp WHERE contact = ? AND otpHash = ? ORDER BY id DESC LIMIT 1',
       [otp.contact, otpHash],
-      function (err, row: any) {
+      function (err: any, row: any) {
         if (err) return reject(err)
         if (!row) return resolve('not_found')
 
         const id = row.id as number
         const createdAtMs = Number(row.createdAt)
-        database.run('DELETE FROM otp WHERE id = ?', [id], function (delErr) {
+        database.run('DELETE FROM otp WHERE id = ?', [id], function (this: any, delErr: any) {
           if (delErr) return reject(delErr)
           // If another concurrent validator deleted it first, changes will be 0
           if (this.changes !== 1) return resolve('not_found')

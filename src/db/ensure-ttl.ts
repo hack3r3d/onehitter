@@ -1,8 +1,3 @@
-// Load dotenv-safe only in dev/test (or when explicitly enabled)
-if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test' || process.env.ONEHITTER_USE_DOTENV === 'true') {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  require('dotenv-safe').config({ allowEmptyValues: false })
-}
 import { MongoClient, ServerApiVersion } from 'mongodb'
 import { MONGO_CONNECTION } from '../config'
 
@@ -40,12 +35,14 @@ export async function ensureCreatedAtTTLIndex(client: MongoClient, ttlSeconds: n
   return { action: 'unchanged', name, expireAfterSeconds: existing.expireAfterSeconds }
 }
 
-// CLI entrypoint
-async function main() {
+// CLI entrypoint (exported for tests)
+export async function main() {
   const parsed = Number(process.env.OTP_EXPIRY)
   const ttlSeconds = Number.isFinite(parsed) && parsed > 0 ? parsed : 1800
 
-  const client = new MongoClient(MONGO_CONNECTION, {
+  const conn = MONGO_CONNECTION
+  if (!conn) throw new Error('MONGO_CONNECTION is required to run ensure-ttl')
+  const client = new MongoClient(conn, {
     serverApi: {
       version: ServerApiVersion.v1,
       strict: true,
@@ -56,7 +53,6 @@ async function main() {
   try {
     await client.connect()
     const result = await ensureCreatedAtTTLIndex(client, ttlSeconds)
-    // eslint-disable-next-line no-console
     console.log(`[ensure-ttl] ${result.action}: index=${result.name} ttl=${result.expireAfterSeconds}s`)
     process.exit(0)
   } catch (err) {
