@@ -147,7 +147,7 @@ Details and tradeoffs: docs/DB.md
   - Channel is email-only; SMS/push require a new sender/transport abstraction.
   - Internationalization, deliverability management, and compliance (PCI/HIPAA, etc.) are out of scope and depend on your environment.
 
-🤝 Contributing
+## 🤝 Contributing
 
 This project is an open-source effort, and all contributions are welcome, big or small. Whether you're fixing a typo, squashing a nasty bug, writing documentation, or proposing a major new feature, your help can have a real impact on this project.
 
@@ -201,3 +201,5 @@ I'm especially looking for ...
 * Documentation: Adding more examples, tutorials, or clarifying existing docs.
 
 Thank you for helping build great software. I look forward to reviewing your contributions.
+
+If you don't want to write code, you can still help by sending me money via (Venmo)[https://venmo.com/unifly]
