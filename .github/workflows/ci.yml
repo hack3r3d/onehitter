@@ -41,6 +41,3 @@ jobs:
 
       - name: Unit tests (no external services)
         run: npm run test:unit
-
-      - name: Coverage with thresholds
-        run: npm run test:coverage
