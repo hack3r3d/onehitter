@@ -146,3 +146,58 @@ Details and tradeoffs: docs/DB.md
 - Scope
   - Channel is email-only; SMS/push require a new sender/transport abstraction.
   - Internationalization, deliverability management, and compliance (PCI/HIPAA, etc.) are out of scope and depend on your environment.
+
+🤝 Contributing
+
+This project is an open-source effort, and all contributions are welcome, big or small. Whether you're fixing a typo, squashing a nasty bug, writing documentation, or proposing a major new feature, your help can have a real impact on this project.
+
+Here are a few ways you can support the OneHitter:
+
+🐛 Reporting Bugs
+
+If you find a bug, please check the existing issues list to see if it has already been reported. If not, open a new issue and include:
+
+Steps to reproduce the bug.
+
+The expected behavior versus the actual behavior.
+
+The environment (OS, Node version, browser, etc.) where the bug occurred.
+
+✨ Feature Requests
+
+Have an idea for how OneHitter could be improved? Open an issue and use the "Feature Request" label. Describe the proposed feature, why it would be useful, and how you imagine it working.
+
+💻 Code Contributions (Pull Requests)
+
+We encourage you to submit Pull Requests (PRs). If you're ready to dive into the code, here's our simple workflow:
+
+1. Fork the repository and clone it locally.
+
+2. Create a new branch for your fix or feature:
+
+3. git checkout -b feature/your-feature-name
+OR git checkout -b bugfix/issue-number
+
+4. Make your changes. Please ensure your code follows the existing style, includes appropriate comments, and passes all existing tests.
+
+5. Write tests for any new features or bug fixes.
+
+6. Commit your changes with a descriptive commit message.
+
+7. Push your branch and open a Pull Request against the main branch of this repository.
+
+It's a simple seven step process.
+
+I'm especially looking for ...
+
+* TypeScript Refactoring: Improving type safety and clarity across the codebase.
+
+* Performance Optimizations: Identifying and improving bottlenecks.
+
+* Security Improvements: Making sure the otp are as secure in the db and code as possible.
+
+* Databases: Currently OneHitter really only supports MongoDB. An adapter for Postgresql, MySQL/Maria, or any other databases.
+
+* Documentation: Adding more examples, tutorials, or clarifying existing docs.
+
+Thank you for helping build great software. I look forward to reviewing your contributions.
