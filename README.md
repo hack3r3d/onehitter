@@ -202,4 +202,4 @@ I'm especially looking for ...
 
 Thank you for helping build great software. I look forward to reviewing your contributions.
 
-If you don't want to write code, you can still help by sending me money via (Venmo)[https://venmo.com/unifly]
+If you don't want to write code, you can still help by sending me money via [Venmo](https://venmo.com/unifly)
