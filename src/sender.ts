@@ -25,6 +25,25 @@ export interface MessageConfig {
   template?: MessageTemplate
 }
 
+/**
+ * @function formatExpiry
+ * @description
+ * Safely resolves and formats the OTP expiration time in seconds and minutes.
+ * This function ensures a valid, positive expiration time is always returned
+ * by checking multiple configuration sources in a specific order:
+ *
+ * **Configuration Priority:**
+ * 1. **Argument:** The `expiry` value passed directly to the function.
+ * 2. **Global Constant:** The global constant `OTP_EXPIRY`.
+ * 3. **Hardcoded Default:** A default of **1800 seconds (30 minutes)** if both of the
+ * above sources are invalid or missing.
+ *
+ * It also calculates a user-friendly text string for use in email messages.
+ *
+ * @param {number | string} [expiry] - The optional raw expiration time provided by the caller (in seconds).
+ * @returns {{ seconds: number; minutes: number; text: string }} An object containing the expiration time
+ * in raw seconds, rounded minutes, and a human-readable text string (e.g., "30 minutes").
+ */
 function formatExpiry(expiry?: number | string): { seconds: number; minutes: number; text: string } {
   const secFromArg = Number(expiry)
   const envExpiryNum = Number(OTP_EXPIRY)
@@ -37,6 +56,30 @@ function formatExpiry(expiry?: number | string): { seconds: number; minutes: num
   return { seconds, minutes, text }
 }
 
+/**
+ * @function resolveMessage
+ * @description
+ * Generates and resolves the final email components (subject, text, html, from address)
+ * for the OTP email. This function prioritizes custom templates and configurations
+ * over global default constants.
+ *
+ * **Configuration Priority:**
+ * 1. **Custom Function:** If `cfgOrFn` is a function (`MessageTemplate`), it is called
+ * with the full message context (`ctx`) to provide an entire override object.
+ * 2. **Custom Config/Template:** If `cfgOrFn` is a configuration object (`MessageConfig`),
+ * it applies any custom subject, text, HTML, or `from` address. It also supports a
+ * custom `template` function within the config for body generation.
+ * 3. **Global Constants/Defaults:** If no overrides are provided, it falls back to
+ * global constants (`OTP_MESSAGE_SUBJECT`, `OTP_MESSAGE_FROM`) and provides a
+ * robust default plaintext body.
+ *
+ * @param {string} to - The recipient's email address.
+ * @param {string} otp - The generated OTP code.
+ * @param {string} url - The base URL/application link.
+ * @param {number | string} [expiry] - The raw OTP expiration time.
+ * @param {MessageConfig | MessageTemplate} [cfgOrFn] - Optional custom message configuration object or a template function.
+ * @returns {{ subject: string; text: string; html: string | undefined; from: string }} An object containing the final, resolved email parts.
+ */
 function resolveMessage(to: string, otp: string, url: string, expiry?: number | string, cfgOrFn?: MessageConfig | MessageTemplate) {
   const { seconds, text: minutesText } = formatExpiry(expiry)
   const ctx: MessageContext = { to, otp, url, expirySeconds: seconds, minutesText }
@@ -67,6 +110,29 @@ Once used, this one-time password can not be used again. That's why it's called 
   return { subject, text, html, from }
 }
 
+/**
+ * @async
+ * @function send
+ * @description
+ * Low-level utility function to send the generated One-Time Password (OTP) via email.
+ *
+ * This function handles the entire email dispatch process, including:
+ * 1. **Argument Validation:** Ensures the recipient (`to`) and sender (`from`) addresses are provided.
+ * 2. **AWS SES Setup:** Configures a Nodemailer transporter using AWS SES. It prioritizes a user-provided
+ * transporter or region, falling back to global constants (`SES_REGION`) or a default region (`us-east-1`).
+ * 3. **Message Resolution:** Calls an external utility (`resolveMessage`) to format the email content
+ * (subject, text, HTML body) using the OTP, URL, expiry, and any custom message templates.
+ * 4. **Email Dispatch:** Uses the configured transporter to send the final email.
+ *
+ * @param {string} to - The recipient's email address.
+ * @param {string} otp - The generated OTP code.
+ * @param {string} url - The base URL, often used within the email template (e.g., for linking back to the app).
+ * @param {number | string} [expiry] - The OTP expiration time, used in message resolution (e.g., "Expires in 5 minutes").
+ * @param {MessageConfig | MessageTemplate} [message] - Custom configuration or templates for the email content.
+ * @param {SendOptions} [opts] - Optional parameters, including an existing Nodemailer `transporter` or a specific `region`.
+ * @returns {Promise<void>} A Promise that resolves when the email is sent by the transporter.
+ * @throws {Error} If the recipient (`to`) or the sender (`from`) address is missing.
+ */
 async function send(
   to: string,
   otp: string,
