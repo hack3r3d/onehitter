@@ -1,9 +1,10 @@
 {
   "name": "onehitter",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "One-time password user validation package.",
   "main": "dist/cjs/onehitter.js",
   "module": "dist/esm/onehitter.js",
+  "funding": "https://venmo.com/unifly",
   "types": "dist/types/onehitter.d.ts",
   "exports": {
     ".": {
