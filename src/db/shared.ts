@@ -6,7 +6,6 @@ export interface OtpDoc {
   contact: string
   otp: string
   createdAt: Date
-  // _id is Mongo-specific; omitted here on purpose
 }
 
 export function currentDriver(): 'mongodb' | 'sqlite' {

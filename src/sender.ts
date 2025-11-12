@@ -1,5 +1,4 @@
 import nodemailer from 'nodemailer'
-import * as aws from '@aws-sdk/client-ses'
 import { OTP_MESSAGE_FROM, OTP_MESSAGE_SUBJECT, SES_REGION, OTP_EXPIRY } from './config'
 
 export interface SendOptions {
@@ -133,6 +132,22 @@ Once used, this one-time password can not be used again. That's why it's called 
  * @returns {Promise<void>} A Promise that resolves when the email is sent by the transporter.
  * @throws {Error} If the recipient (`to`) or the sender (`from`) address is missing.
  */
+function createSesTransport(region: string): nodemailer.Transporter {
+  // Prefer Nodemailer v7 SESv2 client when available; fall back to legacy SES config
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const sesv2 = require('@aws-sdk/client-sesv2') as typeof import('@aws-sdk/client-sesv2')
+    const client = new sesv2.SESv2Client({ region })
+    // Nodemailer v7 accepts { SESv2: { ses: client } }
+    return nodemailer.createTransport({ SESv2: { ses: client } } as any)
+  } catch {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const aws = require('@aws-sdk/client-ses') as typeof import('@aws-sdk/client-ses')
+    const legacy = new aws.SES({ apiVersion: '2010-12-01', region })
+    return nodemailer.createTransport({ SES: { ses: legacy, aws } } as any)
+  }
+}
+
 async function send(
   to: string,
   otp: string,
@@ -147,9 +162,7 @@ async function send(
 
   const region = opts?.region ?? SES_REGION ?? 'us-east-1'
 
-  const transporter = opts?.transporter ?? nodemailer.createTransport({
-    SES: { ses: new aws.SES({ apiVersion: '2010-12-01', region }), aws },
-  })
+  const transporter = opts?.transporter ?? createSesTransport(region)
 
   const { subject, text, html, from } = resolveMessage(to, otp, url, expiry, message)
 
