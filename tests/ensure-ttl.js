@@ -33,8 +33,8 @@ const { ensureCreatedAtTTLIndex } = pq('../dist/cjs/db/ensure-ttl.js', {
 })
 
 // Ensure required env vars for the helper are present (used directly by ensure-ttl)
-process.env.MONGO_DATABASE = process.env.MONGO_DATABASE || 'onehitter-test'
-process.env.MONGO_COLLECTION = process.env.MONGO_COLLECTION || 'otps'
+process.env.OTP_MONGO_DATABASE = process.env.OTP_MONGO_DATABASE || 'onehitter-test'
+process.env.OTP_MONGO_COLLECTION = process.env.OTP_MONGO_COLLECTION || 'otps'
 
 // Minimal in-memory fakes to satisfy the MongoDB calls used by ensureCreatedAtTTLIndex
 function makeFake(clientState) {
@@ -115,16 +115,16 @@ describe('ensureCreatedAtTTLIndex()', () => {
   })
 
   it('throws when MONGO_DATABASE or MONGO_COLLECTION missing', async () => {
-    const db = process.env.MONGO_DATABASE
-    const coll = process.env.MONGO_COLLECTION
-    delete process.env.MONGO_DATABASE
+    const db = process.env.OTP_MONGO_DATABASE
+    const coll = process.env.OTP_MONGO_COLLECTION
+    delete process.env.OTP_MONGO_DATABASE
     try {
       const state = { indexes: [] }
       const { client } = makeFake(state)
-      await assert.rejects(() => ensureCreatedAtTTLIndex(client, 100), /Missing MONGO_DATABASE or MONGO_COLLECTION/)
+      await assert.rejects(() => ensureCreatedAtTTLIndex(client, 100), /Missing OTP_MONGO_DATABASE or OTP_MONGO_COLLECTION/)
     } finally {
-      process.env.MONGO_DATABASE = db
-      process.env.MONGO_COLLECTION = coll
+      process.env.OTP_MONGO_DATABASE = db
+      process.env.OTP_MONGO_COLLECTION = coll
     }
   })
 })

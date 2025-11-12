@@ -26,9 +26,9 @@ before(async function () {
   const port = container.getMappedPort(27017)
   const uri = `mongodb://${host}:${port}`
 
-  if (!process.env.MONGO_CONNECTION) process.env.MONGO_CONNECTION = uri
-  if (!process.env.MONGO_DATABASE) process.env.MONGO_DATABASE = 'onehitter-test'
-  if (!process.env.MONGO_COLLECTION) process.env.MONGO_COLLECTION = 'otp'
+  if (!process.env.OTP_MONGO_CONNECTION) process.env.OTP_MONGO_CONNECTION = uri
+  if (!process.env.OTP_MONGO_DATABASE) process.env.OTP_MONGO_DATABASE = 'onehitter-test'
+  if (!process.env.OTP_MONGO_COLLECTION) process.env.OTP_MONGO_COLLECTION = 'otp'
 
   // Wait for Mongo to be ready by pinging it
   const client = new MongoClient(process.env.MONGO_CONNECTION, {

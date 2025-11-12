@@ -6,7 +6,7 @@ const dotenv = require('dotenv')
 const testEnvPath = path.resolve(__dirname, '..', '.env.test')
 const rootEnvPath = path.resolve(__dirname, '..', '.env')
 dotenv.config({ path: testEnvPath })
-if (!process.env.MONGO_CONNECTION) {
+if (!process.env.OTP_MONGO_CONNECTION) {
   dotenv.config({ path: rootEnvPath })
 }
 
@@ -26,7 +26,7 @@ describe('validateStatus', () => {
   before(async function () {
     skipIfNoMongoConnection(this)
     skipIfNotTestDatabase(this)
-    client = new MongoClient(process.env.MONGO_CONNECTION, {
+    client = new MongoClient(process.env.OTP_MONGO_CONNECTION, {
       serverApi: {
         version: ServerApiVersion.v1,
         strict: true,

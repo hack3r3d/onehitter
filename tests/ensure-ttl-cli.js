@@ -54,7 +54,7 @@ describe('ensure-ttl CLI main()', () => {
     process.env.OTP_EXPIRY = '123'
     const { MongoClient } = makeMongoFake([])
     const mod = fresh('../dist/cjs/db/ensure-ttl.js', {
-      '../config': { MONGO_CONNECTION: 'mongodb://unit-test' },
+      '../config': { MONGO_CONNECTION: 'mongodb://unit-test', OTP_MONGO_CONNECTION: 'mongodb://unit-test' },
       'mongodb': { MongoClient, ServerApiVersion: { v1: 'v1' } },
     })
 
@@ -73,7 +73,7 @@ describe('ensure-ttl CLI main()', () => {
     delete process.env.OTP_EXPIRY
     const { MongoClient } = makeMongoFake([])
     const mod = fresh('../dist/cjs/db/ensure-ttl.js', {
-      '../config': { MONGO_CONNECTION: undefined },
+      '../config': { MONGO_CONNECTION: undefined, OTP_MONGO_CONNECTION: undefined },
       'mongodb': { MongoClient, ServerApiVersion: { v1: 'v1' } },
     })
 

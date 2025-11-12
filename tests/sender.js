@@ -143,7 +143,7 @@ const send = require('../dist/cjs/sender.js').default
   })
 
   it('constructs SES client with region from SES_REGION', async () => {
-    process.env.SES_REGION = 'eu-west-1'
+    process.env.OTP_SES_REGION = 'eu-west-1'
     clearSenderModule()
 const send = require('../dist/cjs/sender.js').default
     await send('user@example.com', 'REG', 'https://u', 60)

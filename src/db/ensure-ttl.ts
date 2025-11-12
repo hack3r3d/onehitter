@@ -6,10 +6,10 @@ import { MONGO_CONNECTION } from '../config'
  * If an index exists with a different expireAfterSeconds, it will be recreated.
  */
 export async function ensureCreatedAtTTLIndex(client: MongoClient, ttlSeconds: number) {
-  const dbName = process.env.MONGO_DATABASE
-  const collName = process.env.MONGO_COLLECTION
+  const dbName = process.env.OTP_MONGO_DATABASE
+  const collName = process.env.OTP_MONGO_COLLECTION
   if (!dbName || !collName) {
-    throw new Error('Missing MONGO_DATABASE or MONGO_COLLECTION')
+    throw new Error('Missing OTP_MONGO_DATABASE or OTP_MONGO_COLLECTION')
   }
 
   const db = client.db(dbName)

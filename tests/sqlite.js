@@ -12,7 +12,7 @@ if (!process.env.OTP_MESSAGE_FROM) {
 }
 
 // Force SQLite driver for this file within this suite only
-const __PREV_DB_DRIVER = process.env.DB_DRIVER
+const __PREV_DB_DRIVER = process.env.OTP_DB_DRIVER
 process.env.SQLITE_PATH = process.env.SQLITE_PATH || ':memory:'
 // Provide required non-Mongo envs if missing
 process.env.OTP_MESSAGE_FROM = process.env.OTP_MESSAGE_FROM || 'noreply@example.com'
@@ -28,8 +28,8 @@ const hasSqlite = (() => {
 const d = hasSqlite ? describe : describe.skip
 
 d('OneHitter (SQLite driver)', () => {
-  before(() => { process.env.DB_DRIVER = 'sqlite' })
-  after(() => { process.env.DB_DRIVER = __PREV_DB_DRIVER })
+  before(() => { process.env.OTP_DB_DRIVER = 'sqlite' })
+  after(() => { process.env.OTP_DB_DRIVER = __PREV_DB_DRIVER })
 
   it('create and validate success path (no client required)', async () => {
     const one = new OneHitter()

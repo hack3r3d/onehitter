@@ -1,6 +1,6 @@
 // Global bootstrap for unit tests to avoid require-time env assertions in config.js
 // Keep this minimal and generic; integration tests still validate real env.
-process.env.DB_DRIVER = process.env.DB_DRIVER || 'sqlite'
+process.env.OTP_DB_DRIVER = process.env.OTP_DB_DRIVER || 'sqlite'
 process.env.OTP_MESSAGE_FROM = process.env.OTP_MESSAGE_FROM || 'noreply@example.com'
 process.env.OTP_URL = process.env.OTP_URL || 'https://example.com'
 process.env.OTP_EXPIRY = process.env.OTP_EXPIRY || '1800'

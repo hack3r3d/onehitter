@@ -6,7 +6,7 @@ const dotenv = require('dotenv')
 const testEnvPath = path.resolve(__dirname, '..', '.env.test')
 const rootEnvPath = path.resolve(__dirname, '..', '.env')
 dotenv.config({ path: testEnvPath })
-if (!process.env.MONGO_CONNECTION) {
+if (!process.env.OTP_MONGO_CONNECTION) {
   dotenv.config({ path: rootEnvPath })
 }
 
@@ -24,9 +24,10 @@ if (!process.env.OTP_PEPPER) {
 
 describe('OneHitter hashing', () => {
   before(async function () {
+    this.timeout(10000)
     skipIfNoMongoConnection(this)
     skipIfNotTestDatabase(this)
-    client = new MongoClient(process.env.MONGO_CONNECTION, {
+    client = new MongoClient(process.env.OTP_MONGO_CONNECTION, {
       serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
@@ -50,8 +51,8 @@ describe('OneHitter hashing', () => {
     const res = await onehitter.create(client, { contact, otp, createdAt: new Date() })
     const insertedId = res.insertedId
 
-    const db = client.db(process.env.MONGO_DATABASE)
-    const coll = db.collection(process.env.MONGO_COLLECTION)
+    const db = client.db(process.env.OTP_MONGO_DATABASE)
+    const coll = db.collection(process.env.OTP_MONGO_COLLECTION)
     const stored = await coll.findOne({ _id: insertedId })
 
     assert.ok(stored, 'expected a stored document')

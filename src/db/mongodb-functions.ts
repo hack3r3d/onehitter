@@ -13,8 +13,11 @@ export const otpCreate = async (
   client: MongoClient,
   otp: OtpDoc,
 ): Promise<InsertOneResult<StoredOtpDoc>> => {
-  const database = client.db(process.env.MONGO_DATABASE)
-  const cursor = database.collection<StoredOtpDoc>(process.env.MONGO_COLLECTION as string)
+  if (!process.env.OTP_MONGO_DATABASE || !process.env.OTP_MONGO_COLLECTION) {
+    throw new Error('Missing OTP_MONGO_DATABASE or OTP_MONGO_COLLECTION')
+  }
+  const database = client.db(process.env.OTP_MONGO_DATABASE)
+  const cursor = database.collection<StoredOtpDoc>(process.env.OTP_MONGO_COLLECTION as string)
   if (!otp.createdAt) {
     otp.createdAt = new Date()
   }
@@ -41,8 +44,11 @@ export const otpValidateWithStatus = async (
   now: Date = new Date(),
   ttlSeconds?: number,
 ): Promise<ValidateStatus> => {
-  const database = client.db(process.env.MONGO_DATABASE)
-  const cursor = database.collection<StoredOtpDoc>(process.env.MONGO_COLLECTION as string)
+  if (!process.env.OTP_MONGO_DATABASE || !process.env.OTP_MONGO_COLLECTION) {
+    throw new Error('Missing OTP_MONGO_DATABASE or OTP_MONGO_COLLECTION')
+  }
+  const database = client.db(process.env.OTP_MONGO_DATABASE)
+  const cursor = database.collection<StoredOtpDoc>(process.env.OTP_MONGO_COLLECTION as string)
   const otpHash = computeOtpHash(otp.contact, otp.otp)
 
   // Delete matching doc and retrieve the deleted document for inspection

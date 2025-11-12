@@ -14,16 +14,16 @@ function numberOf(key: string, def: number | undefined): number | undefined {
   return Number.isFinite(n) ? n : def
 }
 
-// Database driver selection (non-throwing)
-const DB_DRIVER: 'mongodb' | 'sqlite' = (process.env.DB_DRIVER as any) === 'sqlite' ? 'sqlite' : 'mongodb'
+// Database driver selection (non-throwing) — uses only OTP_DB_DRIVER
+const DB_DRIVER: 'mongodb' | 'sqlite' = (process.env.OTP_DB_DRIVER as any) === 'sqlite' ? 'sqlite' : 'mongodb'
 
-// Mongo configuration (do not throw at import)
-export const MONGO_CONNECTION: string | undefined = process.env.MONGO_CONNECTION
-export const MONGO_DATABASE: string | undefined = process.env.MONGO_DATABASE
-export const MONGO_COLLECTION: string | undefined = process.env.MONGO_COLLECTION
+// Mongo configuration (do not throw at import) — use only OTP_* envs
+export const MONGO_CONNECTION: string | undefined = process.env.OTP_MONGO_CONNECTION
+export const MONGO_DATABASE: string | undefined = process.env.OTP_MONGO_DATABASE
+export const MONGO_COLLECTION: string | undefined = process.env.OTP_MONGO_COLLECTION
 
 // Email/Sending configuration (safe defaults where reasonable)
-export const SES_REGION: string = process.env.SES_REGION ?? 'us-east-1'
+export const SES_REGION: string = process.env.OTP_SES_REGION ?? 'us-east-1'
 export const OTP_MESSAGE_FROM: string | undefined = process.env.OTP_MESSAGE_FROM
 export const OTP_MESSAGE_SUBJECT: string = process.env.OTP_MESSAGE_SUBJECT ?? 'One-time password'
 export const OTP_URL: string | undefined = process.env.OTP_URL
