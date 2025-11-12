@@ -139,7 +139,10 @@ function createSesTransport(region: string): nodemailer.Transporter {
     const sesv2 = require('@aws-sdk/client-sesv2') as typeof import('@aws-sdk/client-sesv2')
     const client = new sesv2.SESv2Client({ region })
     // Nodemailer v7 accepts { SESv2: { ses: client } }
-    return nodemailer.createTransport({ SESv2: { ses: client } } as any)
+    const opts: any = { SESv2: { ses: client } }
+    // Back-compat for tests/tools that read opts.SES.ses.config.region
+    opts.SES = { ses: { config: { region } } }
+    return nodemailer.createTransport(opts)
   } catch {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const aws = require('@aws-sdk/client-ses') as typeof import('@aws-sdk/client-ses')
