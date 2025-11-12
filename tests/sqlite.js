@@ -20,7 +20,7 @@ process.env.OTP_MESSAGE_SUBJECT = process.env.OTP_MESSAGE_SUBJECT || 'One-time p
 process.env.OTP_URL = process.env.OTP_URL || 'https://example.com'
 process.env.OTP_EXPIRY = process.env.OTP_EXPIRY || '1800'
 
-const OneHitter = require('../dist/onehitter.js').default
+const OneHitter = require('../dist/cjs/onehitter.js').default
 
 const hasSqlite = (() => {
   try { require.resolve('sqlite3'); return true } catch { return false }

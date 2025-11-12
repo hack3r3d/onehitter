@@ -12,7 +12,7 @@ if (!process.env.MONGO_CONNECTION) {
 
 // Ensure Mongo driver for this suite
 process.env.DB_DRIVER = 'mongodb'
-const OneHitter = require('../dist/onehitter.js').default
+const OneHitter = require('../dist/cjs/onehitter.js').default
 const { MongoClient, ServerApiVersion } = require('mongodb')
 const { skipIfNoMongoConnection, skipIfNotTestDatabase } = require('./helpers/gating')
 let client
