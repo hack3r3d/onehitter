@@ -140,8 +140,11 @@ function createSesTransport(region: string): nodemailer.Transporter {
     const client = new sesv2.SESv2Client({ region })
     // Nodemailer v7 accepts { SESv2: { ses: client } }
     const opts: any = { SESv2: { ses: client } }
-    // Back-compat for tests/tools that read opts.SES.ses.config.region
-    opts.SES = { ses: { config: { region } } }
+    // Do NOT set opts.SES in production; it can confuse Nodemailer into legacy path.
+    // Preserve legacy field only in tests where some assertions read opts.SES.ses.config.region
+    if (process.env.NODE_ENV === 'test') {
+      opts.SES = { ses: { config: { region } } }
+    }
     return nodemailer.createTransport(opts)
   } catch {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
