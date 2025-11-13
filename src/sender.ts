@@ -133,19 +133,15 @@ Once used, this one-time password can not be used again. That's why it's called 
  * @throws {Error} If the recipient (`to`) or the sender (`from`) address is missing.
  */
 function createSesTransport(region: string): nodemailer.Transporter {
-  // Prefer Nodemailer v7 SESv2 client when available; fall back to legacy SES config
+  // Force SESv2 path only; do not use legacy SES
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const sesv2 = require('@aws-sdk/client-sesv2') as typeof import('@aws-sdk/client-sesv2')
     const client = new sesv2.SESv2Client({ region })
-    // Nodemailer v7 expects SESv2 via options.SES with { sesClient, SendEmailCommand }
     const opts: any = { SES: { sesClient: client, SendEmailCommand: sesv2.SendEmailCommand } }
     return nodemailer.createTransport(opts)
-  } catch {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const aws = require('@aws-sdk/client-ses') as typeof import('@aws-sdk/client-ses')
-    const legacy = new aws.SES({ apiVersion: '2010-12-01', region })
-    return nodemailer.createTransport({ SES: { ses: legacy, aws } } as any)
+  } catch (err) {
+    throw new Error('SESv2 client not available. Install @aws-sdk/client-sesv2 to use OneHitter sender, or pass a Nodemailer transporter explicitly.')
   }
 }
 
@@ -178,6 +174,10 @@ async function send(
     ...(html ? { html } : {}),
     ...(text ? { text } : {}),
   })
+}
+
+export function createSesV2Transport(region: string): nodemailer.Transporter {
+  return createSesTransport(region)
 }
 
 export default send

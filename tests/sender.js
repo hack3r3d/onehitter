@@ -142,6 +142,19 @@ const send = require('../dist/cjs/sender.js').default
     assert.strictEqual(msg.text, 'Use TTT')
   })
 
+  it('uses injected transporter (SESv2) when provided', async () => {
+const send = require('../dist/cjs/sender.js').default
+    const injected = {
+      async sendMail(msg) {
+        sent.push({ opts: 'injected', msg })
+      }
+    }
+    await send('user@example.com', 'INJ', 'https://site', 60, undefined, { transporter: injected })
+    const entry = sent.pop()
+    assert.strictEqual(entry.opts, 'injected')
+    assert.strictEqual(typeof entry.msg.subject, 'string')
+  })
+
   it('constructs SES client with region from SES_REGION', async () => {
     process.env.OTP_SES_REGION = 'eu-west-1'
     clearSenderModule()
