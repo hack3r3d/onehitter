@@ -148,8 +148,8 @@ const send = require('../dist/cjs/sender.js').default
 const send = require('../dist/cjs/sender.js').default
     await send('user@example.com', 'REG', 'https://u', 60)
     const entry = sent.pop()
-    // Support both legacy SES and SESv2 client options
-    const ses = (entry.opts.SES && entry.opts.SES.ses) || (entry.opts.SESv2 && entry.opts.SESv2.ses)
+    // Support Nodemailer v7 SESv2 shape and older variations used in tests
+    const ses = (entry.opts.SES && (entry.opts.SES.sesClient || entry.opts.SES.ses)) || (entry.opts.SESv2 && entry.opts.SESv2.ses)
     const regionCfg = ses && ses.config && ses.config.region
     if (typeof regionCfg === 'string') {
       assert.strictEqual(regionCfg, 'eu-west-1')

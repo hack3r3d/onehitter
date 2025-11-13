@@ -1,6 +1,6 @@
 {
   "name": "onehitter",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "One-time password user validation package.",
   "main": "dist/cjs/onehitter.js",
   "module": "dist/esm/onehitter.js",
@@ -54,6 +54,7 @@
     "test:coverage:unit": "npm run build && nyc --reporter=lcov --reporter=text --check-coverage mocha --timeout 10000 --file tests/helpers/unit-bootstrap.js tests/rate-limiter-defaults.js tests/make.js tests/sender.js tests/sqlite-functions.js tests/sqlite-adapter.js tests/ensure-ttl.js tests/shared-hash.js tests/shared-driver.js",
     "test:coverage:all:tc": "npm run build && nyc --reporter=lcov --reporter=text --check-coverage mocha --timeout 20000 --file tests/helpers/testcontainers-mongo.js --grep \"#send\" --invert tests",
     "test:ci": "npm run build && mocha tests/sender.js tests/rate-limiter-defaults.js tests/make.js tests/sqlite.js",
+    "test:ses": "npm run build && mocha tests/sender-aws.js",
     "db:ensure-ttl": "npm run build && node dist/cjs/db/ensure-ttl.js"
   },
   "repository": {

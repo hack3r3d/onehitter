@@ -23,7 +23,7 @@ export const MONGO_DATABASE: string | undefined = process.env.OTP_MONGO_DATABASE
 export const MONGO_COLLECTION: string | undefined = process.env.OTP_MONGO_COLLECTION
 
 // Email/Sending configuration (safe defaults where reasonable)
-export const SES_REGION: string = process.env.OTP_SES_REGION ?? 'us-east-1'
+export const OTP_SES_REGION: string = process.env.OTP_SES_REGION ?? 'us-east-1'
 export const OTP_MESSAGE_FROM: string | undefined = process.env.OTP_MESSAGE_FROM
 export const OTP_MESSAGE_SUBJECT: string = process.env.OTP_MESSAGE_SUBJECT ?? 'One-time password'
 export const OTP_URL: string | undefined = process.env.OTP_URL

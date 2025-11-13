@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import { OTP_MESSAGE_FROM, OTP_MESSAGE_SUBJECT, SES_REGION, OTP_EXPIRY } from './config'
+import { OTP_MESSAGE_FROM, OTP_MESSAGE_SUBJECT, OTP_SES_REGION, OTP_EXPIRY } from './config'
 
 export interface SendOptions {
   region?: string
@@ -118,7 +118,7 @@ Once used, this one-time password can not be used again. That's why it's called 
  * This function handles the entire email dispatch process, including:
  * 1. **Argument Validation:** Ensures the recipient (`to`) and sender (`from`) addresses are provided.
  * 2. **AWS SES Setup:** Configures a Nodemailer transporter using AWS SES. It prioritizes a user-provided
- * transporter or region, falling back to global constants (`SES_REGION`) or a default region (`us-east-1`).
+ * transporter or region, falling back to global constants (`OTP_SES_REGION`) or a default region (`us-east-1`).
  * 3. **Message Resolution:** Calls an external utility (`resolveMessage`) to format the email content
  * (subject, text, HTML body) using the OTP, URL, expiry, and any custom message templates.
  * 4. **Email Dispatch:** Uses the configured transporter to send the final email.
@@ -138,13 +138,8 @@ function createSesTransport(region: string): nodemailer.Transporter {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const sesv2 = require('@aws-sdk/client-sesv2') as typeof import('@aws-sdk/client-sesv2')
     const client = new sesv2.SESv2Client({ region })
-    // Nodemailer v7 accepts { SESv2: { ses: client } }
-    const opts: any = { SESv2: { ses: client } }
-    // Do NOT set opts.SES in production; it can confuse Nodemailer into legacy path.
-    // Preserve legacy field only in tests where some assertions read opts.SES.ses.config.region
-    if (process.env.NODE_ENV === 'test') {
-      opts.SES = { ses: { config: { region } } }
-    }
+    // Nodemailer v7 expects SESv2 via options.SES with { sesClient, SendEmailCommand }
+    const opts: any = { SES: { sesClient: client, SendEmailCommand: sesv2.SendEmailCommand } }
     return nodemailer.createTransport(opts)
   } catch {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -166,7 +161,7 @@ async function send(
     throw new Error('Missing recipient email: ensure OTP_MESSAGE_TEST_TO (for tests) or the "to" argument is set')
   }
 
-  const region = opts?.region ?? SES_REGION ?? 'us-east-1'
+  const region = opts?.region ?? OTP_SES_REGION ?? 'us-east-1'
 
   const transporter = opts?.transporter ?? createSesTransport(region)
 
