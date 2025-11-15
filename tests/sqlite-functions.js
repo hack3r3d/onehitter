@@ -28,9 +28,9 @@ function makeFakeSqlite() {
         return
       }
       if (sqlUp.startsWith('INSERT INTO OTP')) {
-        const [contact, otpHash, createdAt] = params
+        const [contactId, otpHash, createdAt] = params
         const id = ++idSeq
-        state.rows.push({ id, contact, otpHash, createdAt })
+        state.rows.push({ id, contactId, otpHash, createdAt })
         cb && cb.call({ lastID: id }, null)
         return
       }
@@ -47,9 +47,9 @@ function makeFakeSqlite() {
     get(sql, params, cb) {
       const sqlUp = String(sql).toUpperCase()
       if (sqlUp.startsWith('SELECT ID, CREATEDAT FROM OTP')) {
-        const [contact, otpHash] = params
+        const [contactId, otpHash] = params
         const found = state.rows
-          .filter(r => r.contact === contact && r.otpHash === otpHash)
+          .filter(r => r.contactId === contactId && r.otpHash === otpHash)
           .sort((a, b) => b.id - a.id)[0]
         cb && cb(null, found ? { id: found.id, createdAt: found.createdAt } : undefined)
         return

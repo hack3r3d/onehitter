@@ -1,5 +1,5 @@
 import type { InsertOneResult } from 'mongodb'
-import { SQLITE_PATH, computeOtpHash, type OtpDoc, type ValidateStatus } from './shared'
+import { SQLITE_PATH, computeOtpHash, computeContactId, type OtpDoc, type ValidateStatus } from './shared'
 
 let sqlite3: any | undefined
 let db: any | null = null
@@ -13,12 +13,12 @@ function getDb(): any {
     db!.run(
       'CREATE TABLE IF NOT EXISTS otp (\n' +
         '  id INTEGER PRIMARY KEY AUTOINCREMENT,\n' +
-        '  contact TEXT NOT NULL,\n' +
+        '  contactId TEXT NOT NULL,\n' +
         '  otpHash TEXT NOT NULL,\n' +
         '  createdAt INTEGER NOT NULL\n' +
       ')',
     )
-    db!.run('CREATE INDEX IF NOT EXISTS idx_otp_contact_hash ON otp(contact, otpHash)')
+    db!.run('CREATE INDEX IF NOT EXISTS idx_otp_contact_hash ON otp(contactId, otpHash)')
     db!.run('CREATE INDEX IF NOT EXISTS idx_otp_createdAt ON otp(createdAt)')
   })
   return db
@@ -28,11 +28,12 @@ export const otpCreate = async (otp: OtpDoc): Promise<InsertOneResult<unknown>> 
   const database = getDb()
   const createdAt = otp.createdAt ? otp.createdAt.getTime() : Date.now()
   const otpHash = computeOtpHash(otp.contact, otp.otp)
+  const contactId = computeContactId(otp.contact)
 
   return await new Promise((resolve, reject) => {
     database.run(
-      'INSERT INTO otp (contact, otpHash, createdAt) VALUES (?, ?, ?)',
-      [otp.contact, otpHash, createdAt],
+      'INSERT INTO otp (contactId, otpHash, createdAt) VALUES (?, ?, ?)',
+      [contactId, otpHash, createdAt],
       function (this: any, err: any) {
         if (err) return reject(err)
         // Shape it like a Mongo InsertOneResult enough for callers
@@ -49,13 +50,14 @@ export const otpValidateWithStatus = async (
 ): Promise<ValidateStatus> => {
   const database = getDb()
   const otpHash = computeOtpHash(otp.contact, otp.otp)
+  const contactId = computeContactId(otp.contact)
 
   return await new Promise<ValidateStatus>((resolve, reject) => {
     // Single-statement atomicity: select the newest id, then conditionally delete it.
     // We avoid explicit BEGIN/COMMIT to prevent nested transaction errors under concurrency.
     database.get(
-      'SELECT id, createdAt FROM otp WHERE contact = ? AND otpHash = ? ORDER BY id DESC LIMIT 1',
-      [otp.contact, otpHash],
+      'SELECT id, createdAt FROM otp WHERE contactId = ? AND otpHash = ? ORDER BY id DESC LIMIT 1',
+      [contactId, otpHash],
       function (err: any, row: any) {
         if (err) return reject(err)
         if (!row) return resolve('not_found')

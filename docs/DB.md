@@ -37,7 +37,11 @@ Notes:
 - Changing `OTP_EXPIRY` alone does not modify the TTL index until you run the helper above or recreate the index yourself
 
 Schema (persisted shape):
-- `{ contact: string, otpHash: string, createdAt: Date }`
+- `{ contactId: string, otpHash: string, createdAt: Date }`
+
+Notes:
+- `contactId` is a deterministic, peppered hash of the original contact (e.g., email).
+- The original contact value is **not** stored in the database; it is only provided at call time for hashing and lookups.
 
 ## SQLite
 

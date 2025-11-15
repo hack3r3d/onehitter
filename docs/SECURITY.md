@@ -10,8 +10,9 @@ Recommendations
 
 Optional hardening
 - Per-contact salt (pepper + salt):
-  - The hasher accepts an optional salt parameter (`computeOtpHash(contact, otp, { salt })`).
-  - You can generate and store a random salt alongside the OTP hash per record and include it in validation.
+  - The hasher for OTPs accepts an optional salt parameter (`computeOtpHash(contact, otp, { salt })`).
+  - Contact identifiers are also derived via a peppered hash (`computeContactId(contact)`), so the raw contact (e.g., email) is not stored in the default adapters.
+  - You can generate and store a separate random salt alongside the OTP hash or contact ID per record and include it in validation.
   - Current adapters do not persist `salt` by default; extend your storage schema and adapt create/validate to include it.
 
 Examples

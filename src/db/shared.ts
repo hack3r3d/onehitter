@@ -40,3 +40,29 @@ export const computeOtpHash = (contact: string, otp: string, opts?: { salt?: str
   const crypto = require('crypto') as typeof import('crypto')
   return crypto.createHash('sha256').update(message, 'utf8').digest('hex')
 }
+
+/**
+ * Deterministic contact identifier used in storage.
+ *
+ * This function derives a pseudonymous ID from the contact string using the
+ * same peppered HMAC/Hash strategy as `computeOtpHash`, but without the OTP
+ * component. It allows equality comparison (lookups) without storing the
+ * original contact value in the database.
+ */
+export const computeContactId = (contact: string, opts?: { salt?: string }): string => {
+  const pepper = process.env.OTP_PEPPER || ''
+  const salt = opts?.salt || ''
+
+  const allowInsecure = process.env.ONEHITTER_ALLOW_INSECURE_HASH === 'true'
+  if (process.env.NODE_ENV === 'production' && !pepper && !allowInsecure) {
+    throw new Error('Security requirement: OTP_PEPPER must be set in production to HMAC-protect contact identifiers and OTP hashes (override with ONEHITTER_ALLOW_INSECURE_HASH=true for non-prod-like runs)')
+  }
+
+  const message = salt ? `${contact}|${salt}` : contact
+  const crypto = require('crypto') as typeof import('crypto')
+
+  if (pepper) {
+    return crypto.createHmac('sha256', pepper).update(message, 'utf8').digest('hex')
+  }
+  return crypto.createHash('sha256').update(message, 'utf8').digest('hex')
+}

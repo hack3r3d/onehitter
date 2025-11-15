@@ -60,5 +60,9 @@ describe('OneHitter hashing', () => {
     assert.ok(!('otp' in stored), 'stored document should not contain plaintext "otp"')
     // Should have otpHash string
     assert.strictEqual(typeof stored.otpHash, 'string', 'stored document should include "otpHash"')
+    // Should not store plaintext contact, only a derived identifier
+    assert.ok(!('contact' in stored), 'stored document should not contain plaintext "contact"')
+    assert.strictEqual(typeof stored.contactId, 'string', 'stored document should include "contactId"')
+    assert.notStrictEqual(stored.contactId, contact, 'contactId should not equal the original contact value')
   })
 })
