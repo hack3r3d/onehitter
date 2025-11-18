@@ -28,7 +28,7 @@ It generates an OTP, stores a hashed record, emails it to the user, then validat
   - create(...): persist a hashed OTP document
   - send(to, otp): email the OTP via SES (customizable template)
   - validate / validateStatus(...): consume once and return success or a detailed status
-- Storage adapter: MongoDB (default) or SQLite (experimental). Choose with `DB_DRIVER`.
+- Storage adapter: MongoDB (default) or SQLite (experimental). Choose with `OTP_DB_DRIVER` (`mongodb` or `sqlite`).
 - Expiry: checked at validation time; MongoDB users should also create a TTL index on `createdAt` for cleanup.
 - Rate limiting: bring your own limiter or enable a built-in in-memory limiter via env flags.
 
@@ -102,7 +102,12 @@ if (status === 'ok') {
 
 ## Databases
 - Default: MongoDB. Your app owns the `MongoClient` (construct, connect/close, pass to `create`/`validate`).
-- Optional: SQLite (`DB_DRIVER=sqlite`, optional `SQLITE_PATH`); good for tests/small apps.
+- Optional: SQLite (`OTP_DB_DRIVER=sqlite`, optional `SQLITE_PATH`); good for tests/small apps.
+
+### Database driver env
+- `OTP_DB_DRIVER` (optional): selects the storage driver.
+  - `mongodb` (default): uses the MongoDB adapter and only requires the `mongodb` dependency.
+  - `sqlite`: uses the built-in SQLite adapter and requires the host app to install `sqlite3` (for example, `npm install sqlite3`). When `OTP_DB_DRIVER=mongodb`, `sqlite3` is not required and is not loaded.
 
 Details and tradeoffs: docs/DB.md
 

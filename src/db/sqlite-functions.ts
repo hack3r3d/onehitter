@@ -4,10 +4,29 @@ import { SQLITE_PATH, computeOtpHash, computeContactId, type OtpDoc, type Valida
 let sqlite3: any | undefined
 let db: any | null = null
 
+// Bundler-safe loader for optional sqlite3 dependency.
+// Using eval('require') prevents bundlers from eagerly resolving the sqlite3
+// module when the SQLite driver is not used (e.g. when OTP_DB_DRIVER=mongodb).
+function loadSqlite3(): any {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    const req = eval('require') as NodeRequire
+    return req('sqlite3')
+  } catch (err: any) {
+    // Provide a clear error when the SQLite driver is selected but sqlite3
+    // is not installed in the host application.
+    const message =
+      err && (err as any).code === 'MODULE_NOT_FOUND'
+        ? 'The sqlite3 package is not installed. Install it with "npm install sqlite3" to use OTP_DB_DRIVER=sqlite.'
+        : `Failed to load sqlite3 driver: ${String(err)}`
+    throw new Error(message)
+  }
+}
+
 function getDb(): any {
   if (db) return db
   // Lazy-load sqlite3 only when the SQLite driver is actually used
-  const s: any = sqlite3 ?? (sqlite3 = require('sqlite3'))
+  const s: any = sqlite3 ?? (sqlite3 = loadSqlite3())
   db = new s.Database(SQLITE_PATH)
   db.serialize(() => {
     db!.run(
