@@ -4,7 +4,7 @@ Short-lived OTPs are easy to brute-force if stored with a plain hash. This libra
 
 Recommendations
 - Production requirement: set `OTP_PEPPER`. In production (`NODE_ENV=production`), the library will throw when hashing OTPs if `OTP_PEPPER` is not set.
-- Keep OTP length and character space sufficiently large (e.g., 8–10 chars, include letters + digits) to reduce online guessing.
+- Keep OTP length and character space sufficiently large (e.g., 8–10 chars, include letters + digits) to reduce online guessing. For safety, `OTP_LENGTH` values greater than 64 are capped at 64 characters.
 - Rate limit validation attempts per contact/IP.
 - Prefer transport security and destination controls (e.g., SES production, verified senders/recipients, DMARC/SPF/DKIM).
 

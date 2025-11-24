@@ -9,9 +9,9 @@ Select driver via env:
 
 ```env
 # Default is mongodb
-DB_DRIVER=mongodb
+OTP_DB_DRIVER=mongodb
 # For SQLite
-# DB_DRIVER=sqlite
+# OTP_DB_DRIVER=sqlite
 # SQLITE_PATH=./onehitter.sqlite   # optional; default is :memory:
 ```
 
@@ -21,6 +21,13 @@ Your application owns the MongoClient lifecycle:
 - construct a MongoClient (e.g., with ServerApi v1)
 - connect at startup and close on shutdown
 - pass the client to `create`, `validate`, and `validateStatus`
+
+Minimal Mongo env for the library:
+```env
+OTP_MONGO_CONNECTION=mongodb://localhost:27017
+OTP_MONGO_DATABASE=onehitter
+OTP_MONGO_COLLECTION=otp
+```
 
 Recommended automatic cleanup (TTL index on `createdAt`):
 
@@ -45,7 +52,7 @@ Notes:
 
 ## SQLite
 
-- Set `DB_DRIVER=sqlite` and optionally `SQLITE_PATH` to a file path (default `:memory:`)
+- Set `OTP_DB_DRIVER=sqlite` and optionally `SQLITE_PATH` to a file path (default `:memory:`)
 - No `MongoClient` is required; call `create(...)` and `validate(...)` without a client
 - Expiry is enforced during validation using `OTP_EXPIRY`; there is no background deletion
 

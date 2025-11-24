@@ -209,7 +209,8 @@ class OneHitter {
    *
    * This method ensures safe generation by applying the following configuration rules:
    * 1. **Length Check:** If the global `OTP_LENGTH` is not a positive finite number,
-   * it defaults the OTP length to 6.
+   * it defaults the OTP length to 6. Extremely large values are capped at 64 to
+   * avoid excessive memory usage.
    * 2. **Character Set Guardrail:** It checks which character sets (digits, upper/lower
    * alphabets, special characters) are enabled via global constants. If *no* set
    * is enabled, it defaults to including **only digits** to prevent generating
@@ -220,7 +221,8 @@ class OneHitter {
    * @returns {string} The newly generated OTP string.
    */
   make(): string {
-    const length = Number.isFinite(OTP_LENGTH) && OTP_LENGTH > 0 ? OTP_LENGTH : 6
+    const rawLength = Number.isFinite(OTP_LENGTH) && OTP_LENGTH > 0 ? OTP_LENGTH : 6
+    const length = Math.min(rawLength, 64)
     const base = {
       upperCaseAlphabets: OTP_LETTERS_UPPER,
       lowerCaseAlphabets: OTP_LETTERS_LOWER,

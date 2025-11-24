@@ -1,14 +1,14 @@
 const assert = require('assert')
 const path = require('path')
 const dotenv = require('dotenv')
+const fs = require('fs')
 
-// Load .env.test first, then fall back to .env
+// Load integration env from .env.test only
 const testEnvPath = path.resolve(__dirname, '..', '.env.test')
-const rootEnvPath = path.resolve(__dirname, '..', '.env')
-dotenv.config({ path: testEnvPath })
-if (!process.env.OTP_MONGO_CONNECTION) {
-  dotenv.config({ path: rootEnvPath })
+if (!fs.existsSync(testEnvPath)) {
+  throw new Error('Missing .env.test: create one from .env.example before running Mongo integration tests')
 }
+dotenv.config({ path: testEnvPath })
 
 const OneHitter = require('../dist/cjs/onehitter.js').default
 const { MongoClient, ServerApiVersion } = require('mongodb')

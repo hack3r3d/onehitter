@@ -139,6 +139,19 @@ describe('OneHitter.make()', function () {
     assert.match(code, /^[0-9]+$/)
   })
 
+  it('caps overly large OTP_LENGTH values at 64 characters', () => {
+    const OneHitter = loadOneHitterWithConfig({
+      OTP_LENGTH: 100000000000,
+      OTP_LETTERS_UPPER: true,
+      OTP_LETTERS_LOWER: true,
+      OTP_DIGITS: true,
+      OTP_SPECIAL_CHARS: true,
+    })
+    const one = new OneHitter()
+    const code = one.make()
+    assert.strictEqual(code.length, 64)
+  })
+
   it('special only produces non-alphanumeric', () => {
     const OneHitter = loadOneHitterWithConfig({
       OTP_LENGTH: 12,

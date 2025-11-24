@@ -1,6 +1,14 @@
 const assert = require('assert')
+const path = require('path')
+const dotenv = require('dotenv')
 const nodemailer = require('nodemailer')
 const { SESv2Client, SendEmailCommand } = require('@aws-sdk/client-sesv2')
+
+// Prefer .env.test, then fall back to .env, mirroring other integration-style tests.
+const testEnvPath = path.resolve(__dirname, '..', '.env.test')
+
+dotenv.config({ path: testEnvPath })
+
 const send = require('../dist/cjs/sender.js').default
 
 // Real AWS SES integration test (SESv2). This will actually send an email.

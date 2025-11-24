@@ -4,12 +4,8 @@ const dotenv = require('dotenv')
 
 // Do not require Mongo envs for this suite
 const testEnvPath = path.resolve(__dirname, '..', '.env.test')
-const rootEnvPath = path.resolve(__dirname, '..', '.env')
-// Load if present; not required
+// Load integration env from .env.test only (optional for this suite)
 dotenv.config({ path: testEnvPath })
-if (!process.env.OTP_MESSAGE_FROM) {
-  dotenv.config({ path: rootEnvPath })
-}
 
 // Force SQLite driver for this file within this suite only
 const __PREV_DB_DRIVER = process.env.OTP_DB_DRIVER

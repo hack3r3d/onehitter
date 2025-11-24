@@ -20,7 +20,7 @@ OTP_MESSAGE_SUBJECT=Your verification code
 OTP_URL=https://example.com/verify
 OTP_EXPIRY=1800
 
-OTP_LENGTH=6
+OTP_LENGTH=6    # values greater than 64 are capped at 64 characters
 OTP_LETTERS_UPPER=false
 OTP_LETTERS_LOWER=false
 OTP_DIGITS=true

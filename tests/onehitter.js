@@ -1,16 +1,13 @@
 const assert = require('assert')
 const path = require('path')
 const dotenv = require('dotenv')
-// Prefer .env.test; fall back to .env if missing
+const fs = require('fs')
+// Load integration env from .env.test only
 const testEnvPath = path.resolve(__dirname, '..', '.env.test')
-const rootEnvPath = path.resolve(__dirname, '..', '.env')
-dotenv.config({ path: testEnvPath })
-if (!(process.env.OTP_MONGO_CONNECTION)) {
-    dotenv.config({ path: rootEnvPath })
-    if (!(process.env.OTP_MONGO_CONNECTION)) {
-        console.warn('Skipping integration tests: OTP_MONGO_CONNECTION not set')
-    }
+if (!fs.existsSync(testEnvPath)) {
+  throw new Error('Missing .env.test: create one from .env.example before running Mongo integration tests')
 }
+dotenv.config({ path: testEnvPath })
 const OneHitter = require('../dist/cjs/onehitter.js').default
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 const send = require('../dist/cjs/sender.js').default
@@ -55,7 +52,7 @@ describe('OneHitter', () => {
         it('send-success', async function () {
             this.timeout(20000)
             if (!process.env.OTP_MESSAGE_TEST_TO || process.env.OTP_MESSAGE_TEST_TO.trim().length === 0) {
-                throw new Error('OTP_MESSAGE_TEST_TO is not set; set it in .env.test (or .env) to run the email test')
+                throw new Error('OTP_MESSAGE_TEST_TO is not set; set it in .env.test to run the email test')
             }
             if (!process.env.OTP_MESSAGE_FROM || process.env.OTP_MESSAGE_FROM.trim().length === 0) {
                 throw new Error('OTP_MESSAGE_FROM is not set; set a verified SES sender address')

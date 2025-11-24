@@ -43,9 +43,9 @@ npm run build
 
 2) Configure minimal env
 ```env
-MONGO_CONNECTION=mongodb+srv://...
-MONGO_DATABASE=myapp
-MONGO_COLLECTION=otps
+OTP_MONGO_CONNECTION=mongodb+srv://...
+OTP_MONGO_DATABASE=myapp
+OTP_MONGO_COLLECTION=otps
 
 OTP_MESSAGE_FROM=noreply@example.com
 OTP_MESSAGE_SUBJECT=Your verification code
@@ -61,7 +61,7 @@ OTP_DIGITS=true
 const { MongoClient, ServerApiVersion } = require('mongodb')
 const OneHitter = require('onehitter').default
 
-const client = new MongoClient(process.env.MONGO_CONNECTION, {
+const client = new MongoClient(process.env.OTP_MONGO_CONNECTION, {
   serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true },
 })
 await client.connect()
@@ -79,7 +79,7 @@ await client.close()
 - For detailed validation outcomes (expired/not_found/blocked), use `validateStatus()` (see examples/validate-status.md).
 
 ## API at a glance
-- `make(): string` — generate an OTP according to env flags (`OTP_LENGTH`, `OTP_*`)
+- `make(): string` — generate an OTP according to env flags (`OTP_LENGTH`, `OTP_*`); values greater than 64 are capped at 64 characters
 - `create(client, { contact, otp, createdAt }): Promise<InsertOneResult>` — MongoDB
 - `create({ contact, otp, createdAt }): Promise<InsertOneResult>` — SQLite (no client)
 - `send(to, otp): Promise<void>` — emails via SES; template customizable

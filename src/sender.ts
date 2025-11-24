@@ -104,7 +104,11 @@ ${otp}
 
 Once used, this one-time password can not be used again. That's why it's called one-time password. This password also expires in ${minutesText}.`
   const html = override.html
-  const from = override.from ?? OTP_MESSAGE_FROM
+
+  // Prefer explicitly configured from, then library-level config default, and
+  // finally fall back to the live environment variable. This makes tests and
+  // applications resilient when env is loaded after the module is imported.
+  const from = override.from ?? OTP_MESSAGE_FROM ?? process.env.OTP_MESSAGE_FROM
 
   return { subject, text, html, from }
 }

@@ -40,13 +40,13 @@ Option A — Testcontainers (recommended):
 npm run test:integration:tc
 ```
 
-Option B — Docker Compose:
+Option B  Docker Compose:
 
 ```
 docker-compose up -d mongo
-export MONGO_CONNECTION="mongodb://localhost:27017"
-export MONGO_DATABASE="onehitter-test"
-export MONGO_COLLECTION="otp"
+export OTP_MONGO_CONNECTION="mongodb://localhost:27017"
+export OTP_MONGO_DATABASE="onehitter-test"
+export OTP_MONGO_COLLECTION="otp"
 ```
 
 Then run:

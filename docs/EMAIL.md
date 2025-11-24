@@ -9,7 +9,7 @@ OneHitter sends OTP emails using Nodemailer with AWS SES (SDK v3).
 
 Minimal env:
 ```env
-SES_REGION=us-east-1
+OTP_SES_REGION=us-east-1
 OTP_MESSAGE_FROM=noreply@example.com
 OTP_MESSAGE_SUBJECT=Your verification code
 OTP_URL=https://example.com/verify
