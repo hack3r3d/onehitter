@@ -31,7 +31,7 @@ before(async function () {
   if (!process.env.OTP_MONGO_COLLECTION) process.env.OTP_MONGO_COLLECTION = 'otp'
 
   // Wait for Mongo to be ready by pinging it
-  const client = new MongoClient(process.env.MONGO_CONNECTION, {
+  const client = new MongoClient(process.env.OTP_MONGO_CONNECTION, {
     serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true },
   })
 
@@ -39,7 +39,7 @@ before(async function () {
   for (let i = 0; i < 30; i++) {
     try {
       await client.connect()
-      await client.db(process.env.MONGO_DATABASE).command({ ping: 1 })
+      await client.db(process.env.OTP_MONGO_DATABASE).command({ ping: 1 })
       await client.close()
       break
     } catch (_) {
