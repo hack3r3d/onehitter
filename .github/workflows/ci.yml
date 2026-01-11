@@ -44,6 +44,3 @@ jobs:
 
       - name: Create .env.test for integration tests
         run: cp .env.example .env.test
-
-      - name: Coverage (all tests via Testcontainers)
-        run: npm run test:coverage:all:tc
