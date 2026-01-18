@@ -1,6 +1,6 @@
 {
   "name": "onehitter",
-  "version": "2.0.12",
+  "version": "2.0.13",
   "description": "One-time password user validation package.",
   "main": "dist/cjs/onehitter.js",
   "module": "dist/esm/onehitter.js",
