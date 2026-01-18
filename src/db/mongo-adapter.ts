@@ -1,6 +1,6 @@
 import type { MongoClient, InsertOneResult } from 'mongodb'
-import type { DbAdapter, OtpDoc, ValidateStatus } from './shared'
-import { otpCreate, otpValidateWithStatus } from './mongodb-functions'
+import type { DbAdapter, OtpDoc, ValidateStatus } from './shared.js'
+import { otpCreate, otpValidateWithStatus } from './mongodb-functions.js'
 
 export class MongoAdapter implements DbAdapter {
   readonly name = 'mongodb' as const

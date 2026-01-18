@@ -1,5 +1,5 @@
 import type { MongoClient, InsertOneResult, Document, ObjectId, WithId } from 'mongodb'
-import { computeOtpHash, computeContactId, type ValidateStatus, type OtpDoc } from './shared'
+import { computeOtpHash, computeContactId, type ValidateStatus, type OtpDoc } from './shared.js'
 
 // Persisted DB shape does NOT store plaintext otp or contact
 interface StoredOtpDoc {

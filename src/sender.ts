@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import { OTP_MESSAGE_FROM, OTP_MESSAGE_SUBJECT, OTP_SES_REGION, OTP_EXPIRY } from './config'
+import { OTP_MESSAGE_FROM, OTP_MESSAGE_SUBJECT, OTP_SES_REGION, OTP_EXPIRY } from './config.js'
 
 export interface SendOptions {
   region?: string

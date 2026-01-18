@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import OneHitter from './onehitter'
+import OneHitter from './onehitter.js'
 
 // Define a standardized payload for type safety
 export interface AuthSuccessPayload {

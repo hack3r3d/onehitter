@@ -1,5 +1,5 @@
 import { MongoClient, ServerApiVersion } from 'mongodb'
-import { MONGO_CONNECTION } from '../config'
+import { MONGO_CONNECTION } from '../config.js'
 
 /**
  * Ensure there is a TTL index on createdAt.

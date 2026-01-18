@@ -1,5 +1,5 @@
 import type { InsertOneResult } from 'mongodb'
-import { SQLITE_PATH, computeOtpHash, computeContactId, type OtpDoc, type ValidateStatus } from './shared'
+import { SQLITE_PATH, computeOtpHash, computeContactId, type OtpDoc, type ValidateStatus } from './shared.js'
 
 let sqlite3: any | undefined
 let db: any | null = null

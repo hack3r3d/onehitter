@@ -1,6 +1,6 @@
 import type { InsertOneResult } from 'mongodb'
-import type { DbAdapter, OtpDoc, ValidateStatus } from './shared'
-import { otpCreate, otpValidateWithStatus } from './sqlite-functions'
+import type { DbAdapter, OtpDoc, ValidateStatus } from './shared.js'
+import { otpCreate, otpValidateWithStatus } from './sqlite-functions.js'
 
 export class SqliteAdapter implements DbAdapter {
   readonly name = 'sqlite' as const

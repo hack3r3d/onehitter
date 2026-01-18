@@ -1,9 +1,9 @@
 import type { MongoClient, InsertOneResult } from 'mongodb'
-import type { OtpDoc, ValidateStatus } from './db/shared'
-import { getAdapter } from './db'
-import sendEmail, { type MessageConfig, type MessageTemplate } from './sender'
+import type { OtpDoc, ValidateStatus } from './db/shared.js'
+import { getAdapter } from './db/index.js'
+import sendEmail, { type MessageConfig, type MessageTemplate } from './sender.js'
 import otpGenerator from 'otp-generator'
-import { NoopRateLimiter, InMemoryRateLimiter, type OneHitterOptions, type RateLimiter } from './rate-limiter'
+import { NoopRateLimiter, InMemoryRateLimiter, type OneHitterOptions, type RateLimiter } from './rate-limiter.js'
 import {
   ONEHITTER_ENABLE_INMEM_LIMITER,
   ONEHITTER_LIMIT_COOLDOWN_MS,
@@ -16,7 +16,7 @@ import {
   OTP_SPECIAL_CHARS,
   OTP_URL,
   OTP_EXPIRY,
-} from './config'
+} from './config.js'
 
 type EmailOption = { message?: MessageConfig | MessageTemplate }
 

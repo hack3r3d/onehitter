@@ -1,7 +1,7 @@
-import type { DbAdapter } from './shared'
-import { currentDriver } from './shared'
-import { MongoAdapter } from './mongo-adapter'
-import { SqliteAdapter } from './sqlite-adapter'
+import type { DbAdapter } from './shared.js'
+import { currentDriver } from './shared.js'
+import { MongoAdapter } from './mongo-adapter.js'
+import { SqliteAdapter } from './sqlite-adapter.js'
 
 let mongoAdapter: DbAdapter | null = null
 let sqliteAdapter: DbAdapter | null = null
