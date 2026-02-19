@@ -14,12 +14,12 @@ export interface MessageContext {
   minutesText: string
 }
 
-export type MessageTemplate = (ctx: MessageContext) => Partial<{ subject: string; text: string; html: string; from: string }>
+export type MessageTemplate = (ctx: MessageContext) => Partial<{ subject: string; text: string; html: string; from: string }> | Promise<Partial<{ subject: string; text: string; html: string; from: string }>>
 
 export interface MessageConfig {
-  subject?: string | ((ctx: MessageContext) => string)
-  text?: string | ((ctx: MessageContext) => string)
-  html?: string | ((ctx: MessageContext) => string)
+  subject?: string | ((ctx: MessageContext) => string | Promise<string>)
+  text?: string | ((ctx: MessageContext) => string | Promise<string>)
+  html?: string | ((ctx: MessageContext) => string | Promise<string>)
   from?: string
   template?: MessageTemplate
 }
@@ -79,21 +79,21 @@ function formatExpiry(expiry?: number | string): { seconds: number; minutes: num
  * @param {MessageConfig | MessageTemplate} [cfgOrFn] - Optional custom message configuration object or a template function.
  * @returns {{ subject: string; text: string; html: string | undefined; from: string }} An object containing the final, resolved email parts.
  */
-function resolveMessage(to: string, otp: string, url: string, expiry?: number | string, cfgOrFn?: MessageConfig | MessageTemplate) {
+async function resolveMessage(to: string, otp: string, url: string, expiry?: number | string, cfgOrFn?: MessageConfig | MessageTemplate) {
   const { seconds, text: minutesText } = formatExpiry(expiry)
   const ctx: MessageContext = { to, otp, url, expirySeconds: seconds, minutesText }
 
   let override: Partial<{ subject: string; text: string; html: string; from: string }> = {}
   if (typeof cfgOrFn === 'function') {
-    override = cfgOrFn(ctx) || {}
+    override = (await cfgOrFn(ctx)) || {}
   } else if (cfgOrFn && typeof cfgOrFn === 'object') {
     const cfg = cfgOrFn as MessageConfig
     if (cfg.template) {
-      override = { ...override, ...(cfg.template(ctx) || {}) }
+      override = { ...override, ...((await cfg.template(ctx)) || {}) }
     }
-    if (cfg.subject) override.subject = typeof cfg.subject === 'function' ? cfg.subject(ctx) : cfg.subject
-    if (cfg.text) override.text = typeof cfg.text === 'function' ? cfg.text(ctx) : cfg.text
-    if (cfg.html) override.html = typeof cfg.html === 'function' ? cfg.html(ctx) : cfg.html
+    if (cfg.subject) override.subject = typeof cfg.subject === 'function' ? await cfg.subject(ctx) : cfg.subject
+    if (cfg.text) override.text = typeof cfg.text === 'function' ? await cfg.text(ctx) : cfg.text
+    if (cfg.html) override.html = typeof cfg.html === 'function' ? await cfg.html(ctx) : cfg.html
     if (cfg.from) override.from = cfg.from
   }
 
@@ -165,7 +165,7 @@ async function send(
 
   const transporter = opts?.transporter ?? createSesTransport(region)
 
-  const { subject, text, html, from } = resolveMessage(to, otp, url, expiry, message)
+  const { subject, text, html, from } = await resolveMessage(to, otp, url, expiry, message)
 
   if (!from || String(from).trim().length === 0) {
     throw new Error('Missing sender address: set OTP_MESSAGE_FROM or provide message.from')
